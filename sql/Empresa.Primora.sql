@@ -1,5 +1,6 @@
 -- crie o banco com nome : Empresa_Primora 
 -- Edite o .env com a senha que você escolheu para o postgres
+-- primeiro rode a tabela VENDEDOR e depois CLIENTE
 
 CREATE TABLE cliente (
  id_cliente varchar (10),

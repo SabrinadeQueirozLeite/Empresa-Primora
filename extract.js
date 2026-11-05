@@ -1,3 +1,5 @@
+//Para ler o arquivo cvs ultilizamos csv-parser
+// execute este comando : npm install csv-parser
 
 const fs = require('fs');
 const csv = require('csv-parser');

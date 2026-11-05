@@ -2,6 +2,7 @@
 -- Edite o .env com a senha que você escolheu para o postgres
 -- primeiro rode a tabela VENDEDOR e depois CLIENTE
 
+
 CREATE TABLE cliente (
  id_cliente varchar (10),
  cnpj varchar(18) unique,

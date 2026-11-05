@@ -1,12 +1,13 @@
 //Para ler o arquivo cvs ultilizamos csv-parser
 // execute este comando : npm install csv-parser
 
-const fs = require('fs');
-const csv = require('csv-parser');
+import fs from 'fs';
+import csv from 'csv-parser';
 
 const linhasExtraidas = [];
+console.log("---Iniciando a leitura do arquivo CSV---");
 
-fs.createReadStream('cliente_distribuidora_vetor.csv')
+fs.createReadStream('data/clientes_distribuidora_vetor.csv')
   .pipe(csv({
     separator: ';' 
   }))
@@ -19,6 +20,4 @@ fs.createReadStream('cliente_distribuidora_vetor.csv')
     console.log(linhasExtraidas);
 
     // Aqui dentro você já tem acesso a todos os dados. 
-    // Exemplo de como acessar o primeiro item:
-     console.log(linhasExtraidas[0].razao_social);
   });

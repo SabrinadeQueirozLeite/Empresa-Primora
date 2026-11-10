@@ -4,7 +4,9 @@
 import fs from 'fs';
 import csv from 'csv-parser';
 
-const linhasExtraidas = [];
+export function extrairClientes(){
+  return new Promise((resolve,reject)=>{
+    const linhasExtraidas = [];
 console.log("---Iniciando a leitura do arquivo CSV---");
 
 fs.createReadStream('data/clientes_distribuidora_vetor.csv')
@@ -20,4 +22,10 @@ fs.createReadStream('data/clientes_distribuidora_vetor.csv')
     console.log(linhasExtraidas);
 
     // Aqui dentro você já tem acesso a todos os dados. 
-  });
+    resolve(linhasExtraidas);
+})
+.on("error",(erro)=>{
+  rejects(erro)
+});
+});
+ }

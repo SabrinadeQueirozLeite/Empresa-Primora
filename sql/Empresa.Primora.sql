@@ -1,22 +1,32 @@
 -- crie o banco com nome : Empresa_Primora 
 -- Edite o .env com a senha que você escolheu para o postgres
--- primeiro rode a tabela VENDEDOR e depois CLIENTE
+-- primeiro rode a tabela VENDEDOR e depois EMPRESA
 
 
-CREATE TABLE cliente (
- id_cliente varchar (10),
+CREATE TABLE empresa (
+ id_empresa varchar (10),
  cnpj varchar(18) unique,
  razao_social varchar(150)not null,
  email varchar(100),
- cep char(8) ,
+ data_cadastro date,
+ id_vendedor int,
+ CONSTRAINT pk_empresa primary key (id_empresa),
+ CONSTRAINT fk_empresa_vendedor foreign key (id_vendedor) REFERENCES vendedor(id_vendedor) 
+ );
+ 
+ CREATE TABLE endereco(
+ id_endereco serial,
+ cep char(8),
+ logradouro varchar(40),
+ complemento varchar(50),
  bairro varchar(40),
  cidade varchar(40),
  uf char(2),
- data_cadastro date,
- id_vendedor int,
- CONSTRAINT pk_cliente primary key (id_cliente),
- CONSTRAINT fk_cliente_vendedor foreign key (id_vendedor) REFERENCES vendedor(id_vendedor) 
- );
+ id_empresa varchar(10),
+ CONSTRAINT pk_endereco primary key (id_endereco),
+ CONSTRAINT fk_edereco_empresa foreign key (id_empresa) REFERENCES empresa(id_empresa)
+);
+
 
 CREATE TABLE vendedor (
 id_vendedor serial unique,
@@ -32,14 +42,15 @@ CREATE TABLE telefone (
   tipo varchar(10) CONSTRAINT chk_tipo_telefone CHECK (tipo IN ('Fixo', 'Celular'))
 );
 
+
 CREATE TABLE auditoria(
 id_auditoria serial,
-id_cliente varchar(10),
+id_empresa varchar(10),
 campo varchar(50),
 valor_original varchar(50),
 valor_tratado varchar(50),
 criterio varchar(50),
 fonte varchar(50),
 CONSTRAINT pk_auditoria primary key (id_auditoria),
-CONSTRAINT fk_auditoria_cliente foreign key (id_cliente) REFERENCES cliente(id_cliente)
+CONSTRAINT fk_auditoria_empresa foreign key (id_empresa) REFERENCES empresa(id_empresa)
 );

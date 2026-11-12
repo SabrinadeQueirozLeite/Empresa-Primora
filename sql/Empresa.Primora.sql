@@ -19,7 +19,7 @@ CREATE TABLE empresa (
  cep char(8),
  logradouro varchar(40),
  complemento varchar(50),
- bairro varchar(40),
+ bairro_informado varchar(40),
  cidade varchar(40),
  uf char(2),
  id_empresa varchar(10),

@@ -21,30 +21,25 @@ export async function carregarempresas(empresas) {
 
         console.log("Iniciando carregamento dos clientes...");
 
-        for (const empresa of empresa) {
+        for (const empresa of empresas) {
+            const id_empresa = String(empresa.id);
 
-            // 1. Inserir ou atualizar o cliente
+            // 1. Empresa
             await conexao.query(
                 `INSERT INTO empresa(
-                    id_empresa,
-                    razao_social,
-                    email,
-                    data_cadastro,
-                    cnpj,
-                    ativo
+                    id_empresa, razao_social, email,
+                    data_cadastro, cnpj, ativo
                 )
                 VALUES ($1, $2, $3, $4, $5, $6)
-
-                ON CONFLICT (id_cliente)
+                ON CONFLICT (id_empresa)
                 DO UPDATE SET
                     razao_social = EXCLUDED.razao_social,
                     email = EXCLUDED.email,
                     data_cadastro = EXCLUDED.data_cadastro,
                     cnpj = EXCLUDED.cnpj,
                     ativo = EXCLUDED.ativo`,
-
                 [
-                    String(empresa.id),
+                    id_empresa,
                     empresa.nomeCompleto,
                     empresa.email,
                     empresa.dataCadastro
@@ -55,23 +50,71 @@ export async function carregarempresas(empresas) {
                 ]
             );
 
-            // 2. Inserir ou atualizar o telefone
-            if (empresa.telefoneLimpo) {
+            // 2. Telefone (1 empresa : N telefones)
+            await conexao.query(
+                `DELETE FROM telefone WHERE id_empresa = $1`,
+                [id_empresa]
+            );
 
+            if (empresa.telefoneNumero) {
                 await conexao.query(
-                    `INSERT INTO telefone (
-                        id_empresa,
-                        numero
-                    )
-                    VALUES ($1, $2)
-
-                    ON CONFLICT (id_cliente)
-                    DO UPDATE SET
-                        numero = EXCLUDED.numero`,
-
+                    `INSERT INTO telefone (id_empresa, ddd, numero, tipo)
+                    VALUES ($1, $2, $3, $4)`,
                     [
-                        String(cliente.id),
-                        cliente.telefoneLimpo
+                        id_empresa,
+                        empresa.telefoneDdd,
+                        empresa.telefoneNumero,
+                        empresa.telefoneTipo
+                    ]
+                );
+            }
+
+            // 3. Endereço tratado (1 empresa : 1 endereço)
+            if (empresa.cepLimpo || empresa.bairroTratado) {
+                await conexao.query(
+                    `INSERT INTO endereco (
+                        id_empresa, cep, logradouro, bairro, cidade, uf
+                    )
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                    ON CONFLICT (id_empresa)
+                    DO UPDATE SET
+                        cep = EXCLUDED.cep,
+                        logradouro = EXCLUDED.logradouro,
+                        bairro = EXCLUDED.bairro,
+                        cidade = EXCLUDED.cidade,
+                        uf = EXCLUDED.uf`,
+                    [
+                        id_empresa,
+                        empresa.cepLimpo,
+                        empresa.logradouro,
+                        empresa.bairroTratado,
+                        empresa.cidade,
+                        empresa.uf
+                    ]
+                );
+            }
+
+            // 4. Auditoria (1 empresa : N registros)
+            // Apaga o log anterior para não duplicar se o pipeline rodar de novo
+            await conexao.query(
+                `DELETE FROM auditoria WHERE id_empresa = $1`,
+                [id_empresa]
+            );
+
+            for (const a of empresa.auditoria ?? []) {
+                await conexao.query(
+                    `INSERT INTO auditoria (
+                        id_empresa, campo, valor_original,
+                        valor_tratado, criterio, fonte
+                    )
+                    VALUES ($1, $2, $3, $4, $5, $6)`,
+                    [
+                        id_empresa,
+                        a.campo,
+                        a.valorOriginal,
+                        a.valorTratado,
+                        a.criterio,
+                        a.fonte
                     ]
                 );
             }
@@ -79,23 +122,13 @@ export async function carregarempresas(empresas) {
 
         await conexao.query("COMMIT");
 
-        console.log(
-            `${clientes.length} clientes carregados com sucesso!`
-        );
+        console.log(`${empresas.length} empresas carregadas com sucesso!`);
 
     } catch (erro) {
-
         await conexao.query("ROLLBACK");
-
-        console.error("Erro ao carregar clientes:", erro.message);
-
+        console.error("Erro ao carregar empresas:", erro.message);
         throw erro;
-
     } finally {
         conexao.release();
     }
-}
-
-export async function fecharConexao() {
-    await pool.end();
 }

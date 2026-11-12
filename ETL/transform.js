@@ -1,10 +1,10 @@
 //Transformação
-function transformarEmpresa(dadosBrutos){
+export function transformarClientes(dadosBrutos){
 
-        //1. Normalização das Strings(Sem espaços e aqui fica tudo em minúsculo).
-        let nomeCompleto = 'Não Informado'; //Sem valor vai automático para o não informado.
+        //1. Normalização das Strings(Sem espaços e aqui fica tudo em maiúsculo).
+        let razaoSocial = 'Não Informado'; //Sem valor vai automático para o não informado.
         if (dadosBrutos.name) {
-            nomeCompleto = dadosBrutos.name.trim().toLowerCase();
+            razaoSocial = dadosBrutos.name.trim().toUpperCase();
         };
 
         //Normalização do Email(Sem espaços e tudo minúsculo, para evitar repetições).
@@ -21,10 +21,10 @@ function transformarEmpresa(dadosBrutos){
             dataCadastro = new Date().toISOString(); //se não existir, utiliza a data atual
         };
 
-        //Limpando o CNPJ e os Telefones
+        //Limpando o CNPJ e os Telefones (Somente Números)
         let cnpjLimpo = null;
         if (dadosBrutos.cnpj) {
-            cnpjLimpo = dadosBrutos.cnpj.replace(/\D/g, '');
+            cnpjLimpo = dadosBrutos.cnpj.replace(/\D/g, ''); // a função ".replace(/\D/g, '')" encontra os caracteres diferentes de números e substitui por um vazio ''.
         };
 
         let telefoneLimpo = null;
@@ -34,8 +34,8 @@ function transformarEmpresa(dadosBrutos){
 
         //Retornando os dados já tratados:
         return{
-             id: dadosBrutos.id, //Aqui traz o id já definido e não altera.
-             nomeCompleto: nomeCompleto,
+             idEmpresa: dadosBrutos.id, //Aqui traz o id já definido e não altera.
+             razaoSocial: nomeCompleto,
              email: email,
              dataCadastro: dataCadastro,
              cnpjLimpo: cnpjLimpo,
@@ -43,6 +43,3 @@ function transformarEmpresa(dadosBrutos){
              ativo: dadosBrutos.status === 1 || dadosBrutos.status === 'active'
         };
 }
-
-// Exportando a função para poder usar em outro arquivo
-module.exports = transformarEmpresas;

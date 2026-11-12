@@ -19,13 +19,13 @@ fs.createReadStream('data/clientes_distribuidora_vetor.csv')
   })
   .on('end', () => {
     console.log('--- EXTRAÇÃO CONCLUÍDA ---');
-    console.log(linhasExtraidas);
 
     // Aqui dentro você já tem acesso a todos os dados. 
     resolve(linhasExtraidas);
 })
 .on("error",(erro)=>{
-  rejects(erro)
+  reject(erro)
 });
 });
  }
+ 

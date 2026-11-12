@@ -8,7 +8,7 @@ CREATE TABLE cliente (
  cnpj varchar(18) unique,
  razao_social varchar(150)not null,
  email varchar(100),
- cep char(8) not null,
+ cep char(8) ,
  bairro varchar(40),
  cidade varchar(40),
  uf char(2),

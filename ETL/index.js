@@ -1,4 +1,4 @@
-import { extrairClintes } from "./extract"
+import { extrairClientes } from "./extract"
 import { transformarClientes } from "./transform"
 import { carregarClientes } from "./load"
 

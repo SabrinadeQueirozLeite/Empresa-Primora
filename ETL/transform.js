@@ -1,5 +1,5 @@
 //Transformação
-function transformarClientes(dadosBrutos){
+function transformarEmpresa(dadosBrutos){
 
         //1. Normalização das Strings(Sem espaços e aqui fica tudo em minúsculo).
         let nomeCompleto = 'Não Informado'; //Sem valor vai automático para o não informado.
@@ -45,4 +45,4 @@ function transformarClientes(dadosBrutos){
 }
 
 // Exportando a função para poder usar em outro arquivo
-module.exports = transformarClientes;
+module.exports = transformarEmpresas;

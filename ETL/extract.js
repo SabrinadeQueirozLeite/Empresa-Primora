@@ -1,13 +1,12 @@
-//Para ler o arquivo cvs ultilizamos csv-parser
-// execute este comando : npm install csv-parser
+// Para ler o arquivo CSV utilizamos o csv-parser
+// Execute este comando: npm install csv-parser
 
 import fs from 'fs';
 import csv from 'csv-parser';
 
-export function extrairClientes(){
-  return new Promise((resolve,reject)=>{
+export function extrairEmpresas() {
+  return new Promise((resolve, reject) => {
     const linhasExtraidas = [];
-console.log("---Iniciando a leitura do arquivo CSV---");
 
 fs.createReadStream('data/clientes_distribuidora_vetor.csv')
   .pipe(csv({

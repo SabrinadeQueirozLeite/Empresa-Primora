@@ -1,19 +1,19 @@
-import { extrairClientes } from "./extract"
-import { transformarClientes } from "./transform"
-import { carregarClientes } from "./load"
+import { extrairEmpresas } from "./extract.js"
+import { transformarEmpresa } from "./transform.js"
+import { carregarEmpresas } from "./load.js"
 
 async function executarETL() {
     try{
         console.log("Iniciando processo ETL...")
     
         // EXTRACT 
-        const dadosBrutos = await extrairClientes()
+        const dadosBrutos = await extrairEmpresas()
 
         // TRANSFORM 
-        const dadosTratados = transformarClientes(dadosBrutos)
+        const dadosTratados = dadosBrutos.map(transformarEmpresa)
 
         // LOAD
-        await carregarClientes(dadosTratados)
+        await carregarEmpresas(dadosTratados)
 
         console.log("Processo ETL finalizado com sucesso!")
     } 

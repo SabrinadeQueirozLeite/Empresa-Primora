@@ -10,7 +10,7 @@ app.use(express.json()); // Middleware para interpretar requisições com corpo 
 
 // Rota de teste para verificar se o servidor está funcionando
 app.get("/", (req, res) => {
-  res.send("Servidor rodando com sucesso! no IFB");
+  res.send("Servidor Epresa primora rodando com secesso!");
 });
 
 app.get("/empresas", async (req, res) => {

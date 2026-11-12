@@ -13,7 +13,7 @@ const pool = new Pool({
     port: process.env.DB_PORT || 5432
 });
 
-export async function carregarClientes(clientes) {
+export async function carregarempresas(empresas) {
     const conexao = await pool.connect();
 
     try {
@@ -21,12 +21,12 @@ export async function carregarClientes(clientes) {
 
         console.log("Iniciando carregamento dos clientes...");
 
-        for (const cliente of clientes) {
+        for (const empresa of empresa) {
 
             // 1. Inserir ou atualizar o cliente
             await conexao.query(
-                `INSERT INTO cliente (
-                    id_cliente,
+                `INSERT INTO empresa(
+                    id_empresa,
                     razao_social,
                     email,
                     data_cadastro,
@@ -44,23 +44,23 @@ export async function carregarClientes(clientes) {
                     ativo = EXCLUDED.ativo`,
 
                 [
-                    String(cliente.id),
-                    cliente.nomeCompleto,
-                    cliente.email,
-                    cliente.dataCadastro
-                        ? cliente.dataCadastro.substring(0, 10)
+                    String(empresa.id),
+                    empresa.nomeCompleto,
+                    empresa.email,
+                    empresa.dataCadastro
+                        ? empresa.dataCadastro.substring(0, 10)
                         : null,
-                    cliente.cnpjLimpo,
-                    cliente.ativo
+                    empresa.cnpjLimpo,
+                    empresa.ativo
                 ]
             );
 
             // 2. Inserir ou atualizar o telefone
-            if (cliente.telefoneLimpo) {
+            if (empresa.telefoneLimpo) {
 
                 await conexao.query(
                     `INSERT INTO telefone (
-                        id_cliente,
+                        id_empresa,
                         numero
                     )
                     VALUES ($1, $2)

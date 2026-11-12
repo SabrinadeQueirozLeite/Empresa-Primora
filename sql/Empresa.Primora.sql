@@ -37,9 +37,13 @@ CONSTRAINT pk_vendedor primary key (id_vendedor)
 
 CREATE TABLE telefone (
   id_telefone int unique,
+  id_empresa varchar(10),
   ddd char(2),
   numero varchar(10) not null,
-  tipo varchar(10) CONSTRAINT chk_tipo_telefone CHECK (tipo IN ('Fixo', 'Celular'))
+  tipo varchar(10),
+  CONSTRAINT chk_tipo_telefone CHECK (tipo IN ('Fixo', 'Celular')),
+  CONSTRAINT pk_telefone primary key (id_telefone),
+  CONSTRAINT fk_telefone_empresa foreign key (id_empresa) REFERENCES empresa(id_empresa)
 );
 
 

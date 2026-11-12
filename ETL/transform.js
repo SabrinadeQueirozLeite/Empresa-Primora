@@ -1,45 +1,49 @@
-//Transformação
-export function transformarClientes(dadosBrutos){
 
-        //1. Normalização das Strings(Sem espaços e aqui fica tudo em maiúsculo).
-        let razaoSocial = 'Não Informado'; //Sem valor vai automático para o não informado.
-        if (dadosBrutos.name) {
-            razaoSocial = dadosBrutos.name.trim().toUpperCase();
-        };
+export function transformarEmpresa(dadosBrutos) {
 
-        //Normalização do Email(Sem espaços e tudo minúsculo, para evitar repetições).
-        let email = null;
-        if (dadosBrutos.email){
-            email = dadosBrutos.email.trim().toLowerCase();
-        };
+    // 1. Normalização da razão social
+    let razao_social = 'Não Informado';
 
-        //Normalização das Datas (Aqui está no padrão ISO).
-        let dataCadastro;
-        if (dadosBrutos.created_at){
-            dataCadastro = new Date(dadosBrutos.created_at).toISOString(); //se existir transfroma
+    if (dadosBrutos.razao_social) {
+        razao_social = dadosBrutos.razao_social.trim().toUpperCase();
+    }
+
+    // 2. Normalização do email
+    let email = null;
+
+    if (dadosBrutos.email) {
+        email = dadosBrutos.email.trim().toLowerCase();
+    }
+
+    // 3. Normalização da data de cadastro
+    let data_cadastro;
+
+    if (dadosBrutos.data_cadastro) {
+        let data = new Date(dadosBrutos.data_cadastro);
+
+        if (!isNaN(data.getTime())) {
+            data_cadastro = data.toISOString();
         } else {
-            dataCadastro = new Date().toISOString(); //se não existir, utiliza a data atual
-        };
+            data_cadastro = null;
+        }
 
-        //Limpando o CNPJ e os Telefones (Somente Números)
-        let cnpjLimpo = null;
-        if (dadosBrutos.cnpj) {
-            cnpjLimpo = dadosBrutos.cnpj.replace(/\D/g, ''); // a função ".replace(/\D/g, '')" encontra os caracteres diferentes de números e substitui por um vazio ''.
-        };
+    } else {
+        data_cadastro = new Date().toISOString();
+    }
 
-        let telefoneLimpo = null;
-        if(dadosBrutos.phone) {
-            telefoneLimpo = dadosBrutos.phone.replace(/\D/g, '');
-        };
+    // 4. Limpeza do CNPJ
+    let cnpj = null;
 
-        //Retornando os dados já tratados:
-        return{
-             idEmpresa: dadosBrutos.id, //Aqui traz o id já definido e não altera.
-             razaoSocial: nomeCompleto,
-             email: email,
-             dataCadastro: dataCadastro,
-             cnpjLimpo: cnpjLimpo,
-             telefoneLimpo: telefoneLimpo,
-             ativo: dadosBrutos.status === 1 || dadosBrutos.status === 'active'
-        };
+    if (dadosBrutos.cnpj) {
+        cnpj = dadosBrutos.cnpj.replace(/\D/g, '');
+    }
+
+    // 5. Retornando os dados tratados
+    return {
+        id_empresa: dadosBrutos.id_empresa,
+        razao_social: razao_social,
+        email: email,
+        data_cadastro: data_cadastro,
+        cnpj: cnpj
+    };
 }

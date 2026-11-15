@@ -59,9 +59,21 @@ export function transformarTelefone(dadosBrutos) {
     let tipo = null;
 
     if (dadosBrutos.telefone) {
-        const telefoneLimpo = dadosBrutos.telefone.replace(/\D/g, "");
+        let telefoneLimpo = dadosBrutos.telefone.replace(/\D/g, "");
 
-        if (telefoneLimpo.length >= 10) {
+        // Remove o código do país 55, caso exista
+        if (
+            telefoneLimpo.startsWith("55") &&
+            telefoneLimpo.length > 11
+        ) {
+            telefoneLimpo = telefoneLimpo.substring(2);
+        }
+
+        // Um telefone brasileiro deve ter DDD + número
+        if (
+            telefoneLimpo.length === 10 ||
+            telefoneLimpo.length === 11
+        ) {
             ddd = telefoneLimpo.substring(0, 2);
             numero = telefoneLimpo.substring(2);
 

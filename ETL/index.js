@@ -1,5 +1,5 @@
 import { extrairEmpresas } from "./extract.js"
-import { transformarEmpresa } from "./transform.js"
+import { transformarDados } from "./transform.js"
 import { carregarEmpresas } from "./load.js"
 
 async function executarETL() {
@@ -10,7 +10,7 @@ async function executarETL() {
         const dadosBrutos = await extrairEmpresas()
 
         // TRANSFORM 
-        const dadosTratados = dadosBrutos.map(transformarEmpresa)
+        const dadosTratados = dadosBrutos.map(transformarDados)
 
         // LOAD
         await carregarEmpresas(dadosTratados)

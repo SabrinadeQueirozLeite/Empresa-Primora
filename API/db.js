@@ -43,7 +43,7 @@ async function verificarConexao() {
   await pool.query("SELECT 1");
 }
 
-async function selecionarempresa() {
+async function selecionarEmpresa() {
   const result = await pool.query("SELECT * FROM empresa");
   return result.rows;
 }
@@ -80,7 +80,7 @@ async function encerrarConexao() {
 module.exports = {
   adicionarempresa,
   encerrarConexao,
-  selecionarempresa,
+  selecionarEmpresa,
   selecionarTelefone,
   verificarConexao,
 };

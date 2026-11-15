@@ -1,134 +1,157 @@
-import pg from "pg";
-import dotenv from "dotenv";
+import pool from "../API/db.js";
 
-dotenv.config();
+export async function carregarDados(dados) {
 
-const { Pool } = pg;
-
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT || 5432
-});
-
-export async function carregarempresas(empresas) {
-    const conexao = await pool.connect();
+    const cliente = await pool.connect();
 
     try {
-        await conexao.query("BEGIN");
+        // Inicia uma transação
+        await cliente.query("BEGIN");
 
-        console.log("Iniciando carregamento dos clientes...");
 
-        for (const empresa of empresas) {
-            const id_empresa = String(empresa.id);
+        // 1. SALVA O VENDEDOR
+        const resultadoVendedor = await cliente.query(
+            `
+            INSERT INTO vendedor (nome)
+            VALUES ($1)
+            RETURNING id_vendedor
+            `,
+            [dados.vendedor.nome]
+        );
 
-            // 1. Empresa
-            await conexao.query(
-                `INSERT INTO empresa(
-                    id_empresa, razao_social, email,
-                    data_cadastro, cnpj, ativo
-                )
-                VALUES ($1, $2, $3, $4, $5, $6)
-                ON CONFLICT (id_empresa)
-                DO UPDATE SET
-                    razao_social = EXCLUDED.razao_social,
-                    email = EXCLUDED.email,
-                    data_cadastro = EXCLUDED.data_cadastro,
-                    cnpj = EXCLUDED.cnpj,
-                    ativo = EXCLUDED.ativo`,
-                [
+        const idVendedor =
+            resultadoVendedor.rows[0].id_vendedor;
+
+
+        // 2. SALVA A EMPRESA
+        const resultadoEmpresa = await cliente.query(
+            `
+            INSERT INTO empresa (
+                id_empresa,
+                cnpj,
+                razao_social,
+                email,
+                data_cadastro,
+                id_vendedor
+            )
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING id_empresa
+            `,
+            [
+                dados.empresa.id_empresa,
+                dados.empresa.cnpj,
+                dados.empresa.razao_social,
+                dados.empresa.email,
+                dados.empresa.data_cadastro,
+                idVendedor
+            ]
+        );
+
+        const idEmpresa =
+            resultadoEmpresa.rows[0].id_empresa;
+
+
+        // 3. SALVA O TELEFONE
+        if (dados.telefone.numero) {
+
+            await cliente.query(
+                `
+                INSERT INTO telefone (
                     id_empresa,
-                    empresa.nomeCompleto,
-                    empresa.email,
-                    empresa.dataCadastro
-                        ? empresa.dataCadastro.substring(0, 10)
-                        : null,
-                    empresa.cnpjLimpo,
-                    empresa.ativo
+                    ddd,
+                    numero,
+                    tipo
+                )
+                VALUES ($1, $2, $3, $4)
+                `,
+                [
+                    idEmpresa,
+                    dados.telefone.ddd,
+                    dados.telefone.numero,
+                    dados.telefone.tipo
                 ]
             );
-
-            // 2. Telefone (1 empresa : N telefones)
-            await conexao.query(
-                `DELETE FROM telefone WHERE id_empresa = $1`,
-                [id_empresa]
-            );
-
-            if (empresa.telefoneNumero) {
-                await conexao.query(
-                    `INSERT INTO telefone (id_empresa, ddd, numero, tipo)
-                    VALUES ($1, $2, $3, $4)`,
-                    [
-                        id_empresa,
-                        empresa.telefoneDdd,
-                        empresa.telefoneNumero,
-                        empresa.telefoneTipo
-                    ]
-                );
-            }
-
-            // 3. Endereço tratado (1 empresa : 1 endereço)
-            if (empresa.cepLimpo || empresa.bairroTratado) {
-                await conexao.query(
-                    `INSERT INTO endereco (
-                        id_empresa, cep, logradouro, bairro, cidade, uf
-                    )
-                    VALUES ($1, $2, $3, $4, $5, $6)
-                    ON CONFLICT (id_empresa)
-                    DO UPDATE SET
-                        cep = EXCLUDED.cep,
-                        logradouro = EXCLUDED.logradouro,
-                        bairro = EXCLUDED.bairro,
-                        cidade = EXCLUDED.cidade,
-                        uf = EXCLUDED.uf`,
-                    [
-                        id_empresa,
-                        empresa.cepLimpo,
-                        empresa.logradouro,
-                        empresa.bairroTratado,
-                        empresa.cidade,
-                        empresa.uf
-                    ]
-                );
-            }
-
-            // 4. Auditoria (1 empresa : N registros)
-            // Apaga o log anterior para não duplicar se o pipeline rodar de novo
-            await conexao.query(
-                `DELETE FROM auditoria WHERE id_empresa = $1`,
-                [id_empresa]
-            );
-
-            for (const a of empresa.auditoria ?? []) {
-                await conexao.query(
-                    `INSERT INTO auditoria (
-                        id_empresa, campo, valor_original,
-                        valor_tratado, criterio, fonte
-                    )
-                    VALUES ($1, $2, $3, $4, $5, $6)`,
-                    [
-                        id_empresa,
-                        a.campo,
-                        a.valorOriginal,
-                        a.valorTratado,
-                        a.criterio,
-                        a.fonte
-                    ]
-                );
-            }
         }
 
-        await conexao.query("COMMIT");
 
-        console.log(`${empresas.length} empresas carregadas com sucesso!`);
+        // 4. SALVA O ENDEREÇO
+        if (dados.endereco.cep) {
+
+            await cliente.query(
+                `
+                INSERT INTO endereco (
+                    cep,
+                    logradouro,
+                    complemento,
+                    bairro_informado,
+                    cidade,
+                    uf,
+                    id_empresa
+                )
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                `,
+                [
+                    dados.endereco.cep,
+                    dados.endereco.logradouro,
+                    dados.endereco.complemento,
+                    dados.endereco.bairro_informado,
+                    dados.endereco.cidade,
+                    dados.endereco.uf,
+                    idEmpresa
+                ]
+            );
+        }
+
+
+        // 5. SALVA AS AUDITORIAS
+        for (const auditoria of dados.auditorias) {
+
+            await cliente.query(
+                `
+                INSERT INTO auditoria (
+                    id_empresa,
+                    campo,
+                    valor_original,
+                    valor_tratado,
+                    criterio,
+                    fonte
+                )
+                VALUES ($1, $2, $3, $4, $5, $6)
+                `,
+                [
+                    idEmpresa,
+                    auditoria.campo,
+                    auditoria.valor_original,
+                    auditoria.valor_tratado,
+                    auditoria.criterio,
+                    auditoria.fonte
+                ]
+            );
+        }
+
+
+        // Confirma todas as inserções
+        await cliente.query("COMMIT");
+
+        console.log(
+            `Empresa ${dados.empresa.razao_social} carregada com sucesso!`
+        );
 
     } catch (erro) {
-        await conexao.query("ROLLBACK");
-        console.error("Erro ao carregar empresas:", erro.message);
+
+        // Desfaz tudo se ocorrer algum erro
+        await cliente.query("ROLLBACK");
+
+        console.error(
+            "Erro ao carregar os dados:",
+            erro.message
+        );
+
         throw erro;
+
     } finally {
-        conexao.release();
+
+        // Libera a conexão
+        cliente.release();
     }
 }

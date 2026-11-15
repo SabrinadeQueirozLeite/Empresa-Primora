@@ -4,11 +4,23 @@
 import fs from 'fs';
 import csv from 'csv-parser';
 
-export function extrairEmpresas() {
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const caminhoArquivo = path.join(
+__dirname,
+"data",
+"clientes_distribuidora_vetor.csv"
+);
+
+export function extrairDados() {
   return new Promise((resolve, reject) => {
   const linhasExtraidas = [];
 
-  fs.createReadStream('data/clientes_distribuidora_vetor.csv')
+   fs.createReadStream(caminhoArquivo)
     .pipe(csv({
       separator: ';' 
     }))

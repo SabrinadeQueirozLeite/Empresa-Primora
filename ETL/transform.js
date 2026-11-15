@@ -66,9 +66,9 @@ export function transformarTelefone(dadosBrutos) {
             numero = telefoneLimpo.substring(2);
 
             if (numero.length === 9) {
-                tipo = "CELULAR";
+                tipo = "Celular";
             } else if (numero.length === 8) {
-                tipo = "FIXO";
+                tipo = "Fixo";
             }
         }
     }

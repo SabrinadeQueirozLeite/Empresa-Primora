@@ -36,7 +36,7 @@ CONSTRAINT pk_vendedor primary key (id_vendedor)
 
 
 CREATE TABLE telefone (
-  id_telefone int unique,
+  id_telefone serial,
   id_empresa varchar(10),
   ddd char(2),
   numero varchar(10) not null,

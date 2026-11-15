@@ -46,4 +46,48 @@ pool.on("error", (error) => {
     );
 });
 
-export default pool;
+// Testa se o banco está acessível
+async function verificarConexao() {
+    const client = await pool.connect();
+    try {
+        await client.query("SELECT 1");
+    } finally {
+        client.release();
+    }
+}
+
+// Fecha todas as conexões do pool
+async function encerrarConexao() {
+    await pool.end();
+}
+
+// Lista todas as empresas
+async function selecionarempresa() {
+    const { rows } = await pool.query("SELECT * FROM empresa");
+    return rows;
+}
+
+// Insere uma empresa e retorna o registro criado
+// AJUSTE as colunas conforme a sua tabela
+async function adicionarempresa({ nome, cnpj }) {
+    const { rows } = await pool.query(
+        "INSERT INTO empresa (nome, cnpj) VALUES ($1, $2) RETURNING *",
+        [nome, cnpj]
+    );
+    return rows[0];
+}
+
+// Lista todos os telefones
+async function selecionarTelefone() {
+    const { rows } = await pool.query("SELECT * FROM telefone");
+    return rows;
+}
+
+export default {
+    pool,
+    verificarConexao,
+    encerrarConexao,
+    selecionarempresa,
+    adicionarempresa,
+    selecionarTelefone,
+};

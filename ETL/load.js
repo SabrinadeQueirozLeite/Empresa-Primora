@@ -1,9 +1,6 @@
 import pool from "../API/db.js";
 
 export async function carregarDados(dados) {
-    console.log("Carregando empresa:", dados.empresa.razao_social);
-    console.log("Telefone:", dados.telefone);
-    
     const cliente = await pool.connect();
 
     try {

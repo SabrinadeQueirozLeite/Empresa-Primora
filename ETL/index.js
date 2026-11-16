@@ -1,26 +1,20 @@
-import { extrairEmpresas } from "./extract.js"
-import { transformarEmpresa } from "./transform.js"
-import { carregarEmpresas } from "./load.js"
+import { extrairEmpresas } from "./extract.js";
+import { carregarEmpresas, encerrarConexao } from "./load.js";
+import { transformarEmpresa } from "./transform.js";
 
 async function executarETL() {
-    try{
-        console.log("Iniciando processo ETL...")
-    
-        // EXTRACT 
-        const dadosBrutos = await extrairEmpresas()
-
-        // TRANSFORM 
-        const dadosTratados = dadosBrutos.map(transformarEmpresa)
-
-        // LOAD
-        await carregarEmpresas(dadosTratados)
-
-        console.log("Processo ETL finalizado com sucesso!")
-    } 
-    
-    catch (erro) {
-        console.error("Error no processo ETL:", erro.message)
-    }
+  try {
+    console.log("Iniciando processo ETL...");
+    const dadosBrutos = await extrairEmpresas();
+    const dadosTratados = dadosBrutos.map(transformarEmpresa);
+    await carregarEmpresas(dadosTratados);
+    console.log("Processo ETL finalizado com sucesso.");
+  } catch (erro) {
+    console.error("Erro no processo ETL:", erro);
+    process.exitCode = 1;
+  } finally {
+    await encerrarConexao();
+  }
 }
 
-executarETL()
+await executarETL();

@@ -1,4 +1,7 @@
-const { Pool } = require("pg");
+import "dotenv/config";
+import pg from "pg";
+
+const { Pool } = pg;
 
 const requiredVariables = [
   "DB_USER",
@@ -39,16 +42,21 @@ pool.on("error", (error) => {
   );
 });
 
-async function verificarConexao() {
+export async function verificarConexao() {
   await pool.query("SELECT 1");
 }
 
-async function selecionarempresa() {
+export async function selecionarempresa() {
   const result = await pool.query("SELECT * FROM empresa");
   return result.rows;
 }
 
-async function adicionarEmpresa(empresa) {
+export async function selecionarEndereco() {
+  const result = await pool.query("SELECT * FROM endereco");
+  return result.rows;
+}
+
+export async function adicionarEmpresa(empresa) {
   const result = await pool.query(
     "INSERT INTO empresa (id_empresa, cnpj, razao_social, email, cep, bairro, cidade, uf, data_cadastro, id_vendedor) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *",
     [
@@ -68,19 +76,11 @@ async function adicionarEmpresa(empresa) {
   return result.rows[0];
 }
 
-async function selecionarTelefone() {
+export async function selecionarTelefone() {
   const result = await pool.query("SELECT * FROM telefone");
   return result.rows;
 }
 
-async function encerrarConexao() {
+export async function encerrarConexao() {
   await pool.end();
 }
-
-module.exports = {
-  adicionarempresa,
-  encerrarConexao,
-  selecionarempresa,
-  selecionarTelefone,
-  verificarConexao,
-};

@@ -3,6 +3,7 @@
 -- primeiro rode a tabela VENDEDOR e depois EMPRESA
 
 
+
 CREATE TABLE empresa (
  id_empresa varchar (10),
  cnpj varchar(18) unique,

@@ -1,49 +1,78 @@
+function textoOuNulo(valor) {
+  const texto = String(valor ?? "").trim();
+  return texto || null;
+}
+
+function normalizarData(valor) {
+  const texto = textoOuNulo(valor);
+  if (!texto) {
+    return null;
+  }
+
+  const partes = texto.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+  const data = partes
+    ? `${partes[3]}-${partes[2].padStart(2, "0")}-${partes[1].padStart(2, "0")}`
+    : texto;
+  const correspondencia = data.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (!correspondencia) {
+    const dataLegivel = new Date(texto);
+    return Number.isNaN(dataLegivel.getTime())
+      ? null
+      : dataLegivel.toISOString().slice(0, 10);
+  }
+
+  const [, ano, mes, dia] = correspondencia;
+  const dataValidada = new Date(Date.UTC(Number(ano), Number(mes) - 1, Number(dia)));
+
+  if (
+    dataValidada.getUTCFullYear() !== Number(ano) ||
+    dataValidada.getUTCMonth() !== Number(mes) - 1 ||
+    dataValidada.getUTCDate() !== Number(dia)
+  ) {
+    return null;
+  }
+
+  return data;
+}
+
+function normalizarTelefone(valor) {
+  let digitos = String(valor ?? "").replace(/\D/g, "");
+  if (digitos.startsWith("55") && [12, 13].includes(digitos.length)) {
+    digitos = digitos.slice(2);
+  }
+
+  if (![10, 11].includes(digitos.length)) {
+    return null;
+  }
+
+  const numero = digitos.slice(2);
+  return {
+    ddd: digitos.slice(0, 2),
+    numero,
+    tipo: numero.length === 9 ? "Celular" : "Fixo",
+  };
+}
 
 export function transformarEmpresa(dadosBrutos) {
+  const idEmpresa = textoOuNulo(dadosBrutos.id_cliente);
+  const razaoSocial = textoOuNulo(dadosBrutos.razao_social);
 
-    // 1. Normalização da razão social
-    let razao_social = 'Não Informado';
+  if (!idEmpresa || !razaoSocial) {
+    throw new Error("Cada linha do CSV deve conter id_cliente e razao_social.");
+  }
 
-    if (dadosBrutos.razao_social) {
-        razao_social = dadosBrutos.razao_social.trim().toUpperCase();
-    }
-
-    // 2. Normalização do email
-    let email = null;
-
-    if (dadosBrutos.email) {
-        email = dadosBrutos.email.trim().toLowerCase();
-    }
-
-    // 3. Normalização da data de cadastro
-    let data_cadastro;
-
-    if (dadosBrutos.data_cadastro) {
-        let data = new Date(dadosBrutos.data_cadastro);
-
-        if (!isNaN(data.getTime())) {
-            data_cadastro = data.toISOString();
-        } else {
-            data_cadastro = null;
-        }
-
-    } else {
-        data_cadastro = new Date().toISOString();
-    }
-
-    // 4. Limpeza do CNPJ
-    let cnpj = null;
-
-    if (dadosBrutos.cnpj) {
-        cnpj = dadosBrutos.cnpj.replace(/\D/g, '');
-    }
-
-    // 5. Retornando os dados tratados
-    return {
-        id_empresa: dadosBrutos.id_empresa,
-        razao_social: razao_social,
-        email: email,
-        data_cadastro: data_cadastro,
-        cnpj: cnpj
-    };
+  return {
+    id_empresa: idEmpresa,
+    razao_social: razaoSocial.toUpperCase(),
+    email: textoOuNulo(dadosBrutos.email)?.toLowerCase() ?? null,
+    data_cadastro: normalizarData(dadosBrutos.data_cadastro),
+    cnpj: textoOuNulo(dadosBrutos.cnpj)?.replace(/\D/g, "") ?? null,
+    cep: textoOuNulo(dadosBrutos.cep)?.replace(/\D/g, "") ?? null,
+    bairro_informado: textoOuNulo(dadosBrutos.bairro_informado),
+    cidade: textoOuNulo(dadosBrutos.cidade),
+    uf: textoOuNulo(dadosBrutos.uf)?.toUpperCase() ?? null,
+    vendedor: textoOuNulo(dadosBrutos.vendedor_responsavel),
+    telefone: normalizarTelefone(dadosBrutos.telefone),
+  };
 }

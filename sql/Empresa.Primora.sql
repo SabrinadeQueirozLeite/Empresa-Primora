@@ -61,8 +61,6 @@ CONSTRAINT fk_auditoria_empresa foreign key (id_empresa) REFERENCES empresa(id_e
 
 
 -- Rode este arquivo UMA vez (no pgAdmin) se você JÁ criou o banco com o script antigo.
--- Quem criar o banco do zero usa só o Empresa_Primora.sql e não precisa deste.
--- Pode rodar mais de uma vez sem problema.
 
 -- 1. A coluna guarda o bairro já tratado, então o nome passa a ser "bairro" (como no MER)
 DO $$

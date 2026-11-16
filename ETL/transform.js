@@ -21,7 +21,7 @@ function titulo(texto) {
 }
 
 // ---------- BAIRRO ----------
-// Regras de agrupamento (decisão do grupo, para documentar no relatório):
+// Regras de agrupamento:
 //  - "Norte/Sul (Águas Claras)" e "Águas Claras Norte/Sul" são subdivisões
 //    informais e vão para o bairro oficial "Águas Claras".
 //  - "Taguatinga Sul", "taguatinga sul" -> "Taguatinga".

@@ -5,9 +5,11 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./API/server.js"
-  },
+  "start": "nodemon ./API/server.js",
+  "api": "node ./API/server.js",
+  "etl": "node ./ETL/index.js",
+  "test": "node --test \"ETL/tests/*.test.js\""
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SabrinadeQueirozLeite/Empresa-Primora.git"

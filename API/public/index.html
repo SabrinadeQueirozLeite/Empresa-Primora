@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Distribuidora Vetor: base de clientes tratada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<style>
+  /* Paleta de Brasília: concreto, céu do cerrado, ipê amarelo, verde de cerrado */
+  :root {
+    --concreto: #ECEEF1;
+    --papel: #FFFFFF;
+    --tinta: #182534;
+    --tinta-2: #4F6072;
+    --linha: #D3D8DE;
+    --ceu: #1D5FA6;
+    --ceu-bg: #DDE9F6;
+    --ipe: #E9A912;
+    --ipe-bg: #FBEDC4;
+    --cerrado: #3A7A55;
+    --cerrado-bg: #DCEEE2;
+    --erro: #A63A2B;
+    --erro-bg: #F8E3DF;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--concreto);
+    color: var(--tinta);
+    font: 400 1rem/1.5 "Archivo", system-ui, "Segoe UI", Arial, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible { outline: 3px solid var(--ceu); outline-offset: 2px; }
+
+  .pagina { max-width: 1120px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+
+  /* ---------- Topo ---------- */
+  .topo {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 1.1rem 0; border-bottom: 1px solid var(--linha);
+  }
+  .marca { font-weight: 800; font-variation-settings: "wdth" 112; letter-spacing: .01em; }
+  .marca small { display: block; font-weight: 400; font-size: .82rem; color: var(--tinta-2); letter-spacing: 0; font-variation-settings: "wdth" 100; }
+  .estado { display: inline-flex; align-items: center; gap: .5rem; font-size: .85rem; color: var(--tinta-2); }
+  .estado::before { content: ""; width: .6rem; height: .6rem; border-radius: 50%; background: var(--linha); }
+  .estado.ok::before { background: var(--cerrado); }
+  .estado.falha::before { background: var(--erro); }
+
+  /* ---------- Abertura ---------- */
+  .abertura { padding: 3rem 0 2.25rem; }
+  .abertura h1 {
+    margin: 0; max-width: 26ch;
+    font-size: clamp(1.9rem, 4.6vw, 3.1rem); line-height: 1.04; font-weight: 800;
+    font-variation-settings: "wdth" 112; letter-spacing: -.01em;
+  }
+  .abertura .apoio { margin: 1rem 0 0; max-width: 56ch; color: var(--tinta-2); }
+  .numeros { display: flex; flex-wrap: wrap; gap: 1.25rem 2.75rem; margin: 2rem 0 0; padding: 0; list-style: none; }
+  .numeros li { padding-left: .9rem; border-left: 4px solid var(--ipe); }
+  .numeros strong { display: block; font-size: 1.9rem; line-height: 1.1; font-weight: 700; }
+  .numeros span { font-size: .9rem; color: var(--tinta-2); }
+
+  .aviso-erro {
+    margin: 1.5rem 0 0; padding: 1rem 1.25rem; background: var(--erro-bg);
+    border-left: 4px solid var(--erro); max-width: 70ch;
+  }
+  .aviso-erro p { margin: .25rem 0 0; }
+
+  /* ---------- Painéis ---------- */
+  .duas-colunas { display: grid; gap: 1.5rem; grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 900px) { .duas-colunas { grid-template-columns: 3fr 2fr; } }
+
+  .painel { background: var(--papel); border: 1px solid var(--linha); border-top: 5px solid var(--tinta); padding: 1.4rem 1.4rem 1.2rem; }
+  .painel + .painel { margin-top: 1.5rem; }
+  .duas-colunas .painel + .painel { margin-top: 0; }
+  .painel h2 { margin: 0; font-size: 1.25rem; font-weight: 700; font-variation-settings: "wdth" 108; }
+  .painel .dica { margin: .3rem 0 1rem; color: var(--tinta-2); font-size: .92rem; }
+
+  /* ---------- Bairros (faixas que se abrem) ---------- */
+  .faixa {
+    display: grid; grid-template-columns: minmax(7rem, 11rem) 1fr 2.5rem; gap: .9rem; align-items: center;
+    width: 100%; padding: .7rem 0; border: 0; border-top: 1px solid var(--linha);
+    background: none; color: inherit; font: inherit; text-align: left;
+  }
+  button.faixa { cursor: pointer; }
+  button.faixa:hover .nome { text-decoration: underline; text-underline-offset: 3px; }
+  .faixa .nome { font-weight: 600; display: flex; align-items: center; gap: .45rem; }
+  button.faixa .nome::before {
+    content: ""; width: .5rem; height: .5rem; flex: none;
+    border-right: 2px solid var(--tinta-2); border-bottom: 2px solid var(--tinta-2);
+    transform: rotate(-45deg); transition: transform .18s;
+  }
+  button.faixa[aria-expanded="true"] .nome::before { transform: rotate(45deg); }
+  .faixa.sem-grafias .nome { padding-left: 1rem; color: var(--tinta-2); font-weight: 400; }
+  .trilho { height: 20px; background: var(--concreto); }
+  .barra { display: block; height: 100%; width: 0; background: var(--ceu); transition: width .8s cubic-bezier(.2, .7, .2, 1); }
+  .sem-grafias .barra { background: var(--tinta-2); opacity: .55; }
+  .qtd { text-align: right; font-weight: 700; }
+
+  .grafias { padding: .15rem 0 1rem 1rem; }
+  .grafias p { margin: 0 0 .55rem; font-size: .88rem; color: var(--tinta-2); }
+  .grafias ul { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+  .grafias li { padding: .2rem .65rem; background: var(--ipe-bg); border: 1px solid var(--ipe); border-radius: 999px; font-size: .9rem; }
+  .grafias li b { font-weight: 700; margin-left: .3rem; color: var(--tinta-2); }
+
+  /* ---------- Ajustes por campo ---------- */
+  .linha-ajuste { display: grid; grid-template-columns: 7.5rem 1fr 2.5rem; gap: .8rem; align-items: center; padding: .5rem 0; border-top: 1px solid var(--linha); font-size: .95rem; }
+  .linha-ajuste .trilho { display: flex; height: 16px; }
+  .seg { display: block; height: 100%; }
+  .legenda { display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; margin: 1rem 0 0; padding: 0; list-style: none; font-size: .85rem; color: var(--tinta-2); }
+  .legenda i { display: inline-block; width: .8rem; height: .8rem; margin-right: .4rem; vertical-align: -1px; }
+
+  /* ---------- Tabela ---------- */
+  .filtros { display: flex; flex-wrap: wrap; gap: .75rem; margin: 0 0 1rem; }
+  .filtros label { display: flex; flex-direction: column; gap: .25rem; font-size: .85rem; color: var(--tinta-2); }
+  .filtros input, .filtros select {
+    min-width: 13rem; padding: .55rem .7rem; border: 1px solid var(--tinta-2); border-radius: 3px;
+    background: var(--papel); color: var(--tinta); font: inherit;
+  }
+  .contagem { align-self: end; margin-left: auto; font-size: .9rem; color: var(--tinta-2); }
+  .rolagem { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  th { text-align: left; font-size: .85rem; font-weight: 600; color: var(--tinta-2); padding: .55rem .6rem; border-bottom: 2px solid var(--tinta); }
+  td { padding: .65rem .6rem; border-bottom: 1px solid var(--linha); vertical-align: top; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: var(--ceu-bg); }
+  td .id { display: block; font-size: .8rem; color: var(--tinta-2); }
+  td .nome-empresa { font: inherit; font-weight: 600; background: none; border: 0; padding: 0; color: inherit; text-align: left; cursor: pointer; }
+  .vazio { color: var(--tinta-2); font-style: italic; }
+  .estado-vazio { padding: 1.5rem 0; color: var(--tinta-2); }
+
+  /* ---------- Gaveta com os detalhes da empresa ---------- */
+  dialog.gaveta {
+    position: fixed; inset: 0; margin: 0 0 0 auto; padding: 0;
+    width: min(540px, 100vw); max-width: 100vw; height: 100dvh; max-height: 100dvh;
+    border: 0; background: var(--papel); color: var(--tinta);
+    box-shadow: -14px 0 36px rgba(24, 37, 52, .2);
+  }
+  dialog.gaveta::backdrop { background: rgba(24, 37, 52, .5); }
+  dialog.gaveta[open] { animation: entra .22s ease-out; }
+  @keyframes entra { from { transform: translateX(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  .gaveta-topo { display: flex; justify-content: space-between; align-items: start; gap: 1rem; padding: 1.25rem 1.5rem 1rem; border-bottom: 5px solid var(--tinta); position: sticky; top: 0; background: var(--papel); }
+  .gaveta-topo h2 { margin: 0; font-size: 1.25rem; line-height: 1.2; font-variation-settings: "wdth" 108; }
+  .gaveta-topo p { margin: .2rem 0 0; color: var(--tinta-2); font-size: .9rem; }
+  .fechar { flex: none; padding: .45rem .8rem; border: 1px solid var(--tinta); border-radius: 3px; background: var(--papel); color: var(--tinta); font: inherit; font-weight: 600; cursor: pointer; }
+  .fechar:hover { background: var(--concreto); }
+  .gaveta-corpo { padding: 1.25rem 1.5rem 2.5rem; }
+  .gaveta h3 { margin: 1.75rem 0 .6rem; font-size: 1.05rem; font-variation-settings: "wdth" 108; }
+  .gaveta h3:first-child { margin-top: 0; }
+
+  dl.dados { display: grid; grid-template-columns: 7.5rem 1fr; gap: .45rem 1rem; margin: 0; }
+  dl.dados dt { color: var(--tinta-2); font-size: .9rem; }
+  dl.dados dd { margin: 0; overflow-wrap: anywhere; }
+
+  ol.trilha { margin: 0; padding: 0; list-style: none; border-left: 3px solid var(--linha); }
+  .aud { position: relative; padding: .1rem 0 1.1rem 1.1rem; }
+  .aud::before { content: ""; position: absolute; left: -9px; top: .45rem; width: 15px; height: 15px; background: var(--papel); border: 3px solid var(--ceu); border-radius: 50%; }
+  .aud.viacep::before { border-color: var(--cerrado); }
+  .aud.dicionario::before { border-color: var(--ipe); }
+  .aud-topo { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+  .tag { padding: .05rem .55rem; border-radius: 999px; font-size: .78rem; font-weight: 600; background: var(--ceu-bg); color: var(--ceu); }
+  .tag.dicionario { background: var(--ipe-bg); color: #7A5600; }
+  .tag.viacep { background: var(--cerrado-bg); color: var(--cerrado); }
+  .troca { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .6rem; margin: .3rem 0 .15rem; overflow-wrap: anywhere; }
+  .troca .antes { color: var(--tinta-2); text-decoration: line-through; text-decoration-color: var(--erro); }
+  .troca .depois { font-weight: 700; }
+  .criterio { margin: 0; font-size: .88rem; color: var(--tinta-2); }
+
+  .rodape { margin-top: 2.5rem; color: var(--tinta-2); font-size: .85rem; }
+
+  @media (max-width: 560px) {
+    .faixa { grid-template-columns: minmax(6rem, 8rem) 1fr 2rem; gap: .6rem; }
+    .linha-ajuste { grid-template-columns: 6rem 1fr 2rem; }
+    dl.dados { grid-template-columns: 1fr; gap: 0; }
+    dl.dados dd { margin-bottom: .55rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="pagina">
+
+  <header class="topo">
+    <div class="marca">Distribuidora Vetor<small>Base de clientes depois do ETL</small></div>
+    <span class="estado" id="estado" role="status">Conectando à API…</span>
+  </header>
+
+  <section class="abertura">
+    <h1 id="titulo">Carregando os dados…</h1>
+    <p class="apoio" id="apoio"></p>
+    <ul class="numeros" id="numeros"></ul>
+    <div class="aviso-erro" id="erro" hidden>
+      <strong>Não consegui carregar os dados da API.</strong>
+      <p>Confira se a API está rodando (<code>npm run api</code>) e se o <code>db.js</code> e o <code>server.js</code> são as versões novas. Depois recarregue a página.</p>
+    </div>
+  </section>
+
+  <div class="duas-colunas">
+    <section class="painel" aria-labelledby="h-bairros">
+      <h2 id="h-bairros">Empresas por bairro</h2>
+      <p class="dica">Abra uma linha para ver as grafias que foram unificadas naquele bairro.</p>
+      <div id="bairros"></div>
+    </section>
+
+    <section class="painel" aria-labelledby="h-ajustes">
+      <h2 id="h-ajustes">O que o tratamento mudou</h2>
+      <p class="dica">Cada ajuste vira uma linha na tabela de auditoria.</p>
+      <div id="ajustes"></div>
+      <ul class="legenda" id="legenda"></ul>
+    </section>
+  </div>
+
+  <section class="painel" aria-labelledby="h-empresas">
+    <h2 id="h-empresas">Empresas</h2>
+    <p class="dica">Clique em uma empresa para ver o que foi feito no cadastro dela.</p>
+    <div class="filtros">
+      <label>Buscar por nome, código ou CNPJ
+        <input type="search" id="busca" autocomplete="off">
+      </label>
+      <label>Bairro
+        <select id="filtro-bairro"></select>
+      </label>
+      <span class="contagem" id="contagem" aria-live="polite"></span>
+    </div>
+    <div class="rolagem">
+      <table>
+        <thead><tr><th>Empresa</th><th>Bairro</th><th>Vendedor</th><th>Cadastro</th></tr></thead>
+        <tbody id="linhas"></tbody>
+      </table>
+    </div>
+    <p class="estado-vazio" id="sem-resultado" hidden>Nenhuma empresa encontrada. Limpe a busca ou escolha outro bairro.</p>
+  </section>
+
+  <p class="rodape">Projeto Integrador, Bolsa Futuro Digital. Todos os dados são fictícios.</p>
+</div>
+
+<dialog class="gaveta" id="gaveta" aria-labelledby="gaveta-titulo">
+  <div class="gaveta-topo">
+    <div>
+      <h2 id="gaveta-titulo"></h2>
+      <p id="gaveta-sub"></p>
+    </div>
+    <button class="fechar" type="button" id="fechar">Fechar</button>
+  </div>
+  <div class="gaveta-corpo" id="gaveta-corpo"></div>
+</dialog>
+
+<script>
+  // ---------- Utilitários ----------
+  const $ = (seletor) => document.querySelector(seletor);
+
+  // Cria elementos pelo DOM (textContent), então nenhum dado do banco vira HTML
+  function h(tag, props = {}, ...filhos) {
+    const el = document.createElement(tag);
+    for (const [chave, valor] of Object.entries(props)) {
+      if (chave === "class") el.className = valor;
+      else if (chave.startsWith("on")) el.addEventListener(chave.slice(2), valor);
+      else if (valor === true) el.setAttribute(chave, "");
+      else if (valor !== false && valor != null) el.setAttribute(chave, valor);
+    }
+    for (const filho of filhos.flat()) {
+      if (filho == null || filho === false) continue;
+      el.append(filho instanceof Node ? filho : document.createTextNode(String(filho)));
+    }
+    return el;
+  }
+
+  async function obter(caminho) {
+    const resposta = await fetch(caminho);
+    if (!resposta.ok) throw new Error(`${caminho} respondeu ${resposta.status}`);
+    return resposta.json();
+  }
+
+  const soDigitos = (t) => String(t ?? "").replace(/\D/g, "");
+  const semValor = (texto) => h("span", { class: "vazio" }, texto);
+
+  function formatarCnpj(t) {
+    const d = soDigitos(t);
+    return d.length === 14 ? d.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5") : null;
+  }
+  function formatarCep(t) {
+    const d = soDigitos(t);
+    return d.length === 8 ? `${d.slice(0, 5)}-${d.slice(5)}` : null;
+  }
+  function formatarData(t) {
+    const m = String(t ?? "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? `${m[3]}/${m[2]}/${m[1]}` : null;
+  }
+  function formatarTelefone({ ddd, numero }) {
+    const n = soDigitos(numero);
+    const corte = n.length - 4;
+    return `(${ddd}) ${n.slice(0, corte)}-${n.slice(corte)}`;
+  }
+
+  const ROTULO_CAMPO = {
+    razao_social: "Razão social", email: "E-mail", data_cadastro: "Data de cadastro",
+    cnpj: "CNPJ", telefone: "Telefone", cep: "CEP", bairro: "Bairro",
+    logradouro: "Logradouro", complemento: "Complemento", cidade: "Cidade", uf: "UF",
+  };
+  const FONTES = [
+    { chave: "regra local", rotulo: "Regra local", cor: "var(--ceu)", classe: "" },
+    { chave: "dicionário", rotulo: "Dicionário de bairros", cor: "var(--ipe)", classe: "dicionario" },
+    { chave: "ViaCEP", rotulo: "ViaCEP", cor: "var(--cerrado)", classe: "viacep" },
+  ];
+  const fonteInfo = (chave) => FONTES.find((f) => f.chave === chave) ?? { chave, rotulo: chave, cor: "var(--tinta-2)", classe: "" };
+
+  const plural = (n, singular, pluralTxt) => `${n} ${n === 1 ? singular : pluralTxt}`;
+
+  // ---------- Estado da página ----------
+  let empresas = [];
+
+  function marcarEstado(ok) {
+    const el = $("#estado");
+    el.className = `estado ${ok ? "ok" : "falha"}`;
+    el.textContent = ok ? "API conectada" : "API fora do ar";
+  }
+
+  // ---------- Abertura ----------
+  function desenharAbertura(lista, bairros, ajustes) {
+    const totalAjustes = ajustes.reduce((soma, a) => soma + a.total, 0);
+    const reais = bairros.filter((b) => b.bairro !== "(sem bairro)");
+
+    if (lista.length === 0) {
+      $("#titulo").textContent = "Ainda não há empresas no banco.";
+      $("#apoio").textContent = "Rode o ETL (npm run etl) e recarregue a página.";
+      return;
+    }
+
+    const destaque = [...reais].sort((a, b) => b.grafias.length - a.grafias.length)[0];
+
+    if (destaque && destaque.grafias.length > 0) {
+      const n = destaque.grafias.length;
+      $("#titulo").textContent =
+        `${destaque.bairro}: ${plural(n, "grafia diferente virou", "grafias diferentes viraram")} um bairro só, com ${plural(destaque.total, "empresa", "empresas")}.`;
+    } else {
+      $("#titulo").textContent = `${plural(lista.length, "empresa agrupada", "empresas agrupadas")} em ${plural(reais.length, "bairro", "bairros")}.`;
+    }
+    $("#apoio").textContent =
+      "Antes do tratamento, o mesmo bairro aparecia escrito de vários jeitos e cada um virava uma linha nos relatórios. Agora cada bairro aparece uma vez só.";
+
+    const numeros = [
+      [lista.length, "empresas"],
+      [reais.length, "bairros"],
+      [totalAjustes, "ajustes registrados"],
+    ];
+    $("#numeros").replaceChildren(
+      ...numeros.map(([valor, rotulo]) => h("li", {}, h("strong", {}, valor), h("span", {}, rotulo)))
+    );
+  }
+
+  // ---------- Bairros ----------
+  function desenharBairros(bairros) {
+    const maximo = Math.max(...bairros.map((b) => b.total), 1);
+    const caixa = $("#bairros");
+    const barras = [];
+
+    const blocos = bairros.map((b, i) => {
+      const temGrafias = b.grafias.length > 0;
+      const barra = h("span", { class: "barra" });
+      barras.push([barra, (b.total / maximo) * 100]);
+      const trilho = h("span", { class: "trilho" }, barra);
+
+      if (!temGrafias) {
+        return h("div", { class: "faixa sem-grafias" },
+          h("span", { class: "nome" }, b.bairro), trilho, h("span", { class: "qtd" }, b.total));
+      }
+
+      const painel = h("div", { class: "grafias", id: `grafias-${i}`, hidden: true },
+        h("p", {}, `${plural(b.grafias.length, "grafia foi corrigida", "grafias foram corrigidas")} para este bairro:`),
+        h("ul", {}, b.grafias.map((g) =>
+          h("li", {}, g.texto, g.total > 1 ? h("b", {}, `×${g.total}`) : null))));
+
+      const faixa = h("button", {
+        class: "faixa", type: "button", "aria-expanded": "false", "aria-controls": `grafias-${i}`,
+        onclick: () => {
+          const aberto = faixa.getAttribute("aria-expanded") === "true";
+          faixa.setAttribute("aria-expanded", String(!aberto));
+          painel.hidden = aberto;
+        },
+      }, h("span", { class: "nome" }, b.bairro), trilho, h("span", { class: "qtd" }, b.total));
+
+      return h("div", {}, faixa, painel);
+    });
+
+    caixa.replaceChildren(...blocos);
+    // As barras crescem uma única vez, quando a página carrega
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      for (const [barra, largura] of barras) barra.style.width = `${largura}%`;
+    }));
+  }
+
+  // ---------- Ajustes por campo ----------
+  function desenharAjustes(ajustes) {
+    const porCampo = new Map();
+    for (const a of ajustes) {
+      const campo = porCampo.get(a.campo) ?? { campo: a.campo, total: 0, fontes: {} };
+      campo.total += a.total;
+      campo.fontes[a.fonte] = (campo.fontes[a.fonte] ?? 0) + a.total;
+      porCampo.set(a.campo, campo);
+    }
+    const lista = [...porCampo.values()].sort((x, y) => y.total - x.total);
+    const maximo = Math.max(...lista.map((c) => c.total), 1);
+
+    $("#ajustes").replaceChildren(...lista.map((c) => {
+      const segmentos = Object.entries(c.fontes).map(([fonte, n]) =>
+        h("span", {
+          class: "seg",
+          style: `width:${(n / maximo) * 100}%;background:${fonteInfo(fonte).cor}`,
+          title: `${fonteInfo(fonte).rotulo}: ${n}`,
+        }));
+      return h("div", { class: "linha-ajuste" },
+        h("span", {}, ROTULO_CAMPO[c.campo] ?? c.campo),
+        h("span", { class: "trilho" }, segmentos),
+        h("span", { class: "qtd" }, c.total));
+    }));
+
+    const usadas = new Set(ajustes.map((a) => a.fonte));
+    $("#legenda").replaceChildren(...FONTES.filter((f) => usadas.has(f.chave)).map((f) =>
+      h("li", {}, h("i", { style: `background:${f.cor}` }), f.rotulo)));
+  }
+
+  // ---------- Tabela de empresas ----------
+  function prepararTabela(lista) {
+    const select = $("#filtro-bairro");
+    const nomes = [...new Set(lista.map((e) => e.bairro ?? "(sem bairro)"))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+    select.replaceChildren(h("option", { value: "" }, "Todos os bairros"),
+      ...nomes.map((n) => h("option", { value: n }, n)));
+
+    const desenhar = () => {
+      const termo = $("#busca").value.trim().toLowerCase();
+      const termoDigitos = soDigitos(termo);
+      const bairro = select.value;
+
+      const visiveis = lista.filter((e) => {
+        if (bairro && (e.bairro ?? "(sem bairro)") !== bairro) return false;
+        if (!termo) return true;
+        return e.razao_social.toLowerCase().includes(termo)
+          || e.id_empresa.toLowerCase().includes(termo)
+          || (termoDigitos.length > 0 && soDigitos(e.cnpj).includes(termoDigitos));
+      });
+
+      $("#linhas").replaceChildren(...visiveis.map((e) =>
+        h("tr", { onclick: () => abrirEmpresa(e.id_empresa) },
+          h("td", {},
+            h("button", { class: "nome-empresa", type: "button", onclick: (ev) => { ev.stopPropagation(); abrirEmpresa(e.id_empresa); } }, e.razao_social),
+            h("span", { class: "id" }, e.id_empresa)),
+          h("td", {}, e.bairro ?? semValor("sem bairro")),
+          h("td", {}, e.vendedor ?? semValor("sem vendedor")),
+          h("td", {}, formatarData(e.data_cadastro) ?? semValor("sem data")))));
+
+      $("#contagem").textContent = `Mostrando ${visiveis.length} de ${lista.length}`;
+      $("#sem-resultado").hidden = visiveis.length > 0;
+    };
+
+    $("#busca").addEventListener("input", desenhar);
+    select.addEventListener("change", desenhar);
+    desenhar();
+  }
+
+  // ---------- Gaveta com os detalhes ----------
+  function linhaDado(rotulo, valor) {
+    return [h("dt", {}, rotulo), h("dd", {}, valor ?? semValor("sem valor"))];
+  }
+
+  function itemAuditoria(a) {
+    const info = fonteInfo(a.fonte);
+    const semTroca = a.valor_original == null && a.valor_tratado == null;
+    return h("li", { class: `aud ${info.classe}` },
+      h("div", { class: "aud-topo" },
+        h("strong", {}, ROTULO_CAMPO[a.campo] ?? a.campo),
+        h("span", { class: `tag ${info.classe}` }, info.rotulo)),
+      semTroca ? null : h("div", { class: "troca" },
+        h("span", { class: "antes" }, a.valor_original ?? "sem valor"),
+        h("span", { "aria-label": "virou" }, "→"),
+        h("span", { class: "depois" }, a.valor_tratado ?? "sem valor")),
+      h("p", { class: "criterio" }, a.criterio));
+  }
+
+  async function abrirEmpresa(id) {
+    const gaveta = $("#gaveta");
+    $("#gaveta-titulo").textContent = "Carregando…";
+    $("#gaveta-sub").textContent = id;
+    $("#gaveta-corpo").replaceChildren();
+    if (!gaveta.open) gaveta.showModal();
+
+    try {
+      const alvo = encodeURIComponent(id);
+      const [e, auditoria] = await Promise.all([obter(`/empresas/${alvo}`), obter(`/empresas/${alvo}/auditoria`)]);
+
+      $("#gaveta-titulo").textContent = e.razao_social;
+      $("#gaveta-sub").textContent = `${e.id_empresa}, atendida por ${e.vendedor ?? "vendedor não informado"}`;
+
+      const telefones = e.telefones ?? [];
+      const enderecoLinhas = [
+        e.logradouro,
+        [e.bairro, [e.cidade, e.uf].filter(Boolean).join("/")].filter(Boolean).join(", "),
+        formatarCep(e.cep) ? `CEP ${formatarCep(e.cep)}` : null,
+      ].filter(Boolean);
+
+      $("#gaveta-corpo").replaceChildren(
+        h("h3", {}, "Cadastro tratado"),
+        h("dl", { class: "dados" },
+          linhaDado("CNPJ", formatarCnpj(e.cnpj)),
+          linhaDado("E-mail", e.email),
+          linhaDado("Cadastro", formatarData(e.data_cadastro)),
+          linhaDado("Telefone", telefones.length ? telefones.map((t) => `${formatarTelefone(t)} (${t.tipo})`).join(", ") : null),
+          linhaDado("Endereço", enderecoLinhas.length ? h("span", {}, enderecoLinhas.flatMap((l, i) => (i ? [h("br"), l] : [l]))) : null)),
+        h("h3", {}, "Como este cadastro foi tratado"),
+        auditoria.length
+          ? h("ol", { class: "trilha" }, auditoria.map(itemAuditoria))
+          : h("p", { class: "criterio" }, "Nenhum ajuste foi necessário: os dados já chegaram no padrão."));
+    } catch (erro) {
+      console.error(erro);
+      $("#gaveta-titulo").textContent = "Não foi possível carregar";
+      $("#gaveta-corpo").replaceChildren(h("p", {}, "Não consegui buscar os dados desta empresa. Feche e tente de novo."));
+    }
+  }
+
+  $("#fechar").addEventListener("click", () => $("#gaveta").close());
+  // Clique fora do painel (no fundo escuro) também fecha
+  $("#gaveta").addEventListener("click", (ev) => { if (ev.target === ev.currentTarget) ev.currentTarget.close(); });
+
+  // ---------- Início ----------
+  (async function iniciar() {
+    try {
+      const [lista, bairros, ajustes] = await Promise.all([
+        obter("/empresas"), obter("/relatorios/bairros"), obter("/relatorios/ajustes"),
+      ]);
+      empresas = lista;
+      marcarEstado(true);
+      desenharAbertura(lista, bairros, ajustes);
+      desenharBairros(bairros);
+      desenharAjustes(ajustes);
+      prepararTabela(lista);
+    } catch (erro) {
+      console.error(erro);
+      marcarEstado(false);
+      $("#titulo").textContent = "Os dados não chegaram.";
+      $("#erro").hidden = false;
+    }
+  })();
+</script>
+</body>
+</html>

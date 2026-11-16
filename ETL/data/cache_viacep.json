@@ -1,0 +1,92 @@
+{
+  "71900000": {
+    "naoEncontrado": true
+  },
+  "71900100": {
+    "logradouro": "Avenida das Castanheiras",
+    "complemento": null,
+    "bairro": "Norte (Águas Claras)",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "71901010": {
+    "logradouro": "Quadra 301 Rua A Conjunto 1",
+    "complemento": null,
+    "bairro": "Norte (Águas Claras)",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "71906500": {
+    "logradouro": "Avenida Parque Águas Claras",
+    "complemento": null,
+    "bairro": "Norte (Águas Claras)",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "71925000": {
+    "logradouro": "Quadra 205",
+    "complemento": null,
+    "bairro": "Sul (Águas Claras)",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "71926750": {
+    "logradouro": "Rua Baracat",
+    "complemento": null,
+    "bairro": "Sul (Águas Claras)",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "71929000": {
+    "logradouro": "Rua 28",
+    "complemento": null,
+    "bairro": "Sul (Águas Claras)",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "71950000": {
+    "logradouro": "QS 1",
+    "complemento": null,
+    "bairro": "Areal",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "72006400": {
+    "logradouro": "Rua 6",
+    "complemento": null,
+    "bairro": "Setor Habitacional Vicente Pires",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "72006530": {
+    "logradouro": "Rua 6 Chácara 259",
+    "complemento": null,
+    "bairro": "Setor Habitacional Vicente Pires",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "72110010": {
+    "logradouro": "QNA 1",
+    "complemento": null,
+    "bairro": "Taguatinga Norte",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "72110800": {
+    "naoEncontrado": true
+  },
+  "72130010": {
+    "logradouro": "QNG 1",
+    "complemento": null,
+    "bairro": "Taguatinga Norte",
+    "cidade": "Brasília",
+    "uf": "DF"
+  },
+  "72140010": {
+    "logradouro": "QNJ 1",
+    "complemento": null,
+    "bairro": "Taguatinga Norte",
+    "cidade": "Brasília",
+    "uf": "DF"
+  }
+}

@@ -3,6 +3,10 @@ import pg from "pg";
 
 const { Pool } = pg;
 
+// Colunas DATE (OID 1082) voltam como texto "AAAA-MM-DD", sem virar objeto Date
+// (evita a data aparecer como 2025-01-28T03:00:00.000Z no fuso de Brasília)
+pg.types.setTypeParser(1082, (valor) => valor);
+
 const requiredVariables = [
     "DB_USER",
     "DB_PASSWORD",
@@ -62,19 +66,70 @@ async function encerrarConexao() {
 }
 
 // Lista todas as empresas
-async function selecionarempresa() {
-    const { rows } = await pool.query("SELECT * FROM empresa");
+async function selecionarEmpresas() {
+    const { rows } = await pool.query(
+        `SELECT e.*, v.nome AS vendedor,
+                en.cep, en.bairro, en.cidade, en.uf
+         FROM empresa e
+         LEFT JOIN vendedor v ON v.id_vendedor = e.id_vendedor
+         LEFT JOIN endereco en ON en.id_empresa = e.id_empresa
+         ORDER BY e.id_empresa`
+    );
     return rows;
 }
 
-// Insere uma empresa e retorna o registro criado
-// AJUSTE as colunas conforme a sua tabela
-async function adicionarempresa({ nome, cnpj }) {
-    const { rows } = await pool.query(
-        "INSERT INTO empresa (nome, cnpj) VALUES ($1, $2) RETURNING *",
-        [nome, cnpj]
-    );
-    return rows[0];
+// Insere uma empresa (e o endereço, se vier no corpo) e devolve o registro criado
+async function adicionarEmpresa(empresa) {
+    const client = await pool.connect();
+
+    try {
+        await client.query("BEGIN");
+
+        const { rows } = await client.query(
+            `INSERT INTO empresa (
+                id_empresa, cnpj, razao_social, email, data_cadastro, id_vendedor
+            )
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *`,
+            [
+                empresa.id_empresa,
+                empresa.cnpj,
+                empresa.razao_social,
+                empresa.email ?? null,
+                empresa.data_cadastro ?? null,
+                empresa.id_vendedor ?? null,
+            ]
+        );
+
+        const temEndereco =
+            empresa.cep || empresa.logradouro || empresa.bairro || empresa.cidade || empresa.uf;
+
+        if (temEndereco) {
+            await client.query(
+                `INSERT INTO endereco (
+                    id_empresa, cep, logradouro, complemento, bairro, cidade, uf
+                )
+                VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                [
+                    empresa.id_empresa,
+                    empresa.cep ?? null,
+                    empresa.logradouro ?? null,
+                    empresa.complemento ?? null,
+                    empresa.bairro ?? null,
+                    empresa.cidade ?? null,
+                    empresa.uf ?? null,
+                ]
+            );
+        }
+
+        await client.query("COMMIT");
+        return rows[0];
+    } catch (erro) {
+        await client.query("ROLLBACK");
+        throw erro;
+    } finally {
+        client.release();
+    }
 }
 
 // Lista todos os telefones
@@ -83,11 +138,89 @@ async function selecionarTelefone() {
     return rows;
 }
 
+// Uma empresa com vendedor, endereço e telefones
+async function selecionarEmpresaPorId(id) {
+    const { rows } = await pool.query(
+        `SELECT e.*,
+                v.nome AS vendedor,
+                en.cep, en.logradouro, en.complemento, en.bairro, en.cidade, en.uf,
+                COALESCE(
+                    jsonb_agg(
+                        jsonb_build_object('ddd', t.ddd, 'numero', t.numero, 'tipo', t.tipo)
+                    ) FILTER (WHERE t.id_telefone IS NOT NULL),
+                    '[]'
+                ) AS telefones
+         FROM empresa e
+         LEFT JOIN vendedor v ON v.id_vendedor = e.id_vendedor
+         LEFT JOIN endereco en ON en.id_empresa = e.id_empresa
+         LEFT JOIN telefone t ON t.id_empresa = e.id_empresa
+         WHERE e.id_empresa = $1
+         GROUP BY e.id_empresa, v.id_vendedor, en.id_endereco`,
+        [id]
+    );
+    return rows[0] ?? null;
+}
+
+// Por que esta empresa ficou assim? (original -> tratado -> critério -> fonte)
+async function selecionarAuditoria(id) {
+    const { rows } = await pool.query(
+        `SELECT campo, valor_original, valor_tratado, criterio, fonte
+         FROM auditoria
+         WHERE id_empresa = $1
+         ORDER BY id_auditoria`,
+        [id]
+    );
+    return rows;
+}
+
+// Relatório agregado: quantas empresas por bairro, e quais grafias foram
+// unificadas em cada um (vem da auditoria: bairro, regra local ou dicionário)
+async function contarEmpresasPorBairro() {
+    const { rows } = await pool.query(
+        `SELECT COALESCE(en.bairro, '(sem bairro)') AS bairro,
+                COUNT(*)::int AS total,
+                COALESCE((
+                    SELECT jsonb_agg(
+                               jsonb_build_object('texto', g.valor_original, 'total', g.n)
+                               ORDER BY g.n DESC, g.valor_original
+                           )
+                    FROM (
+                        SELECT a.valor_original, COUNT(*)::int AS n
+                        FROM auditoria a
+                        WHERE a.campo = 'bairro'
+                          AND a.fonte IN ('regra local', 'dicionário')
+                          AND a.valor_original IS NOT NULL
+                          AND a.valor_tratado = en.bairro
+                        GROUP BY a.valor_original
+                    ) g
+                ), '[]'::jsonb) AS grafias
+         FROM endereco en
+         GROUP BY en.bairro
+         ORDER BY total DESC, bairro`
+    );
+    return rows;
+}
+
+// Relatório de auditoria: quantos ajustes por campo e por fonte
+async function contarAjustes() {
+    const { rows } = await pool.query(
+        `SELECT campo, fonte, COUNT(*)::int AS total
+         FROM auditoria
+         GROUP BY campo, fonte
+         ORDER BY campo, fonte`
+    );
+    return rows;
+}
+
 export default {
     pool,
     verificarConexao,
     encerrarConexao,
-    selecionarempresa,
-    adicionarempresa,
+    selecionarEmpresas,
+    adicionarEmpresa,
     selecionarTelefone,
+    selecionarEmpresaPorId,
+    selecionarAuditoria,
+    contarEmpresasPorBairro,
+    contarAjustes,
 };

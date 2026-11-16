@@ -1,35 +1,42 @@
 import "dotenv/config";
 
-import { extrairDados } from "./extract.js";
-import { transformarDados } from "./transform.js";
-import { carregarDados } from "./load.js";
-import { enriquecerEndereco } from "./enrich.js";
+import { extrairEmpresas } from "./extract.js";
+import { transformarEmpresa } from "./transform.js";
+import { enriquecerEndereco, salvarCache } from "./viacep.js";
+import { carregarEmpresas, fecharConexao } from "./load.js";
 
 async function executarETL() {
     try {
         console.log("Iniciando processo ETL...");
 
         // EXTRACT
-        const dadosBrutos = await extrairDados();
+        const dadosBrutos = await extrairEmpresas();
 
         // TRANSFORM
-        const dadosTratados = dadosBrutos.map(transformarDados);
+        const dadosTratados = dadosBrutos.map(transformarEmpresa);
 
-        // ENRICH
-        for (const dados of dadosTratados) {
-            dados.endereco = await enriquecerEndereco(
-                dados.endereco
-            );
+        // ENRICH (ViaCEP): um de cada vez, para não sobrecarregar a API
+        for (const empresa of dadosTratados) {
+            await enriquecerEndereco(empresa);
         }
+        salvarCache();
 
         // LOAD
-       for(const dados of dadosTratados) { 
-        await carregarDados(dados)}
+        const { carregadas, falhas } = await carregarEmpresas(dadosTratados);
 
-        console.log("Processo ETL finalizado com sucesso!");
+        console.log(`Resumo: ${carregadas} empresas carregadas, ${falhas.length} com falha.`);
 
+        if (falhas.length > 0) {
+            process.exitCode = 1;
+            console.error("Empresas com falha:", falhas);
+        } else {
+            console.log("Processo ETL finalizado com sucesso!");
+        }
     } catch (erro) {
         console.error("Erro no processo ETL:", erro.message);
+        process.exitCode = 1;
+    } finally {
+        await fecharConexao();
     }
 }
 

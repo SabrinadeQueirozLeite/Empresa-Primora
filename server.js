@@ -10,22 +10,34 @@ app.use(express.json()); // Middleware para interpretar requisições com corpo 
 
 // Rota de teste para verificar se o servidor está funcionando
 app.get("/", (req, res) => {
-  res.send("Servidor Epresa primora rodando com secesso!");
+  res.send("Servidor Empresa Primora rodando com secesso!");
 });
 
-app.get("/empresas", async (req, res) => {
-  const empresas = await db.selecionarempresa();
-  res.status(200).json(empresas);
+app.get("/empresas", async (req, res, next) => {
+  try {
+    const empresas = await db.selecionarempresa();
+    res.status(200).json(empresas);
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.get("/enderecos", async (req, res) => {
-  const enderecos = await db.selecionarEndereco();
-  res.status(200).json(enderecos);
+app.post("/empresas", async (req, res) => {
+  if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+    return res.status(400).json({ erro: "O corpo deve ser um objeto JSON." });
+  }
+
+  const empresa = await db.adicionarEmpresa(req.body);
+  res.status(201).json(empresa);
 });
 
-app.get("/telefones", async (req, res) => {
-  const telefones = await db.selecionarTelefone();
-  res.status(200).json(telefones);
+app.get("/telefones", async (req, res, next) => {
+  try {
+    const telefones = await db.selecionarTelefone();
+    res.status(200).json(telefones);
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use((error, req, res, next) => {
@@ -45,7 +57,7 @@ async function iniciarServidor() {
     });
   } catch (error) {
     console.error("Não foi possível conectar ao banco de dados:", error);
-    await db.encerrarConexao();
+    await db.encerrarConexao?.();
     process.exitCode = 1;
   }
 }

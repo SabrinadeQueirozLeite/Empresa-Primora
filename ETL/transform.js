@@ -1,8 +1,7 @@
-// ======================================================================
+
 // TRANSFORM: recebe UMA linha crua do CSV e devolve UM objeto tratado,
 // com os nomes iguais às colunas do banco, mais a lista "auditoria"
 // (valor original -> valor tratado -> critério -> fonte).
-// ======================================================================
 
 // ---------- utilitários ----------
 
@@ -44,7 +43,7 @@ function chaveBairro(texto) {
 
 export function normalizarBairro(original) {
     if (vazio(original)) {
-        return { valor: null, criterio: "bairro ausente", fonte: "regra local" };
+        return { valor: null, criterio: "bairro ausente", fonte: "CSV" };
     }
 
     const chave = chaveBairro(original);
@@ -58,7 +57,7 @@ export function normalizarBairro(original) {
             ? {
                   valor: regra.canonico,
                   criterio: "normalização textual (caixa, acentos e sufixo UF)",
-                  fonte: "regra local",
+                  fonte: "CSV",
               }
             : {
                   valor: regra.canonico,
@@ -72,7 +71,7 @@ export function normalizarBairro(original) {
     return {
         valor: titulo(limpo),
         criterio: "normalização textual (sem correspondência no dicionário)",
-        fonte: "regra local",
+        fonte: "CSV",
     };
 }
 

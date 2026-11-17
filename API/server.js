@@ -3,6 +3,8 @@ import express from "express"; // Importa o framework Express para criar o servi
 import db from "./db.js"; // Importa o módulo de conexão com o banco de dados
 import path from "path";
 import { fileURLToPath } from "url";
+import  jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 import { autenticarToken } from "./auth.js";
 

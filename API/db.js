@@ -212,6 +212,57 @@ async function contarAjustes() {
     return rows;
 }
 
+async function atualizarEmpresa(id, empresa) {
+    const client = await pool.connect();
+
+    try {
+        await client.query("BEGIN");
+
+        const { rows } = await client.query(
+            `UPDATE empresa
+             SET cnpj = COALESCE($1, cnpj),
+                 razao_social = COALESCE($2, razao_social),
+                 email = COALESCE($3, email),
+                 id_vendedor = COALESCE($4, id_vendedor)
+             WHERE id_empresa = $5
+             RETURNING *`,
+            [
+                empresa.cnpj ?? null,
+                empresa.razao_social ?? null,
+                empresa.email ?? null,
+                empresa.id_vendedor ?? null,
+                id
+            ]
+        );
+
+        if (rows.length === 0) {
+            await client.query("ROLLBACK");
+            return null;
+        }
+
+        await client.query("COMMIT");
+
+        return rows[0];
+
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+    } finally {
+        client.release();
+    }
+}
+
+async function excluirEmpresa(id) {
+    const { rows } = await pool.query(
+        `DELETE FROM empresa
+         WHERE id_empresa = $1
+         RETURNING *`,
+        [id]
+    );
+
+    return rows[0] ?? null;
+}
+
 export default {
     pool,
     verificarConexao,
@@ -223,4 +274,6 @@ export default {
     selecionarAuditoria,
     contarEmpresasPorBairro,
     contarAjustes,
+    atualizarEmpresa,
+    excluirEmpresa,
 };

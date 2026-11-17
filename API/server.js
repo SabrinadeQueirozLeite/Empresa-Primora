@@ -4,6 +4,8 @@ import db from "./db.js"; // Importa o módulo de conexão com o banco de dados
 import path from "path";
 import { fileURLToPath } from "url";
 
+import { autenticarToken } from "./auth.js";
+
 const port = process.env.PORT || 3000; // Porta do servidor (padrão 3000)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -23,26 +25,6 @@ app.get("/empresas", async (req, res, next) => {
   try {
     const empresas = await db.selecionarEmpresas();
     res.status(200).json(empresas);
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/empresas", async (req, res, next) => {
-  if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
-    return res.status(400).json({ erro: "O corpo deve ser um objeto JSON." });
-  }
-
-  const { id_empresa, razao_social, cnpj } = req.body;
-  if (!id_empresa || !razao_social || !cnpj) {
-    return res
-      .status(400)
-      .json({ erro: "Campos obrigatórios: id_empresa, razao_social e cnpj." });
-  }
-
-  try {
-    const empresa = await db.adicionarEmpresa(req.body);
-    res.status(201).json(empresa);
   } catch (error) {
     next(error);
   }
@@ -95,6 +77,63 @@ app.get("/relatorios/ajustes", async (req, res, next) => {
   try {
     const ajustes = await db.contarAjustes();
     res.status(200).json(ajustes);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/empresas", autenticarToken, async (req, res, next) => {
+  if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+    return res.status(400).json({ erro: "O corpo deve ser um objeto JSON." });
+  }
+
+  const { id_empresa, razao_social, cnpj } = req.body;
+  if (!id_empresa || !razao_social || !cnpj) {
+    return res
+      .status(400)
+      .json({ erro: "Campos obrigatórios: id_empresa, razao_social e cnpj." });
+  }
+
+  try {
+    const empresa = await db.adicionarEmpresa(req.body);
+    res.status(201).json(empresa);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/empresas/:id", autenticarToken, async (req, res, next) => {
+  try {
+    const empresa = await db.atualizarEmpresa(
+      req.params.id,
+      req.body
+    );
+
+    if (!empresa) {
+      return res.status(404).json({
+        erro: "Empresa não encontrada."
+      });
+    }
+
+    res.status(200).json(empresa);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.delete("/empresas/:id", autenticarToken, async (req, res, next) => {
+  try {
+    const empresa = await db.excluirEmpresa(req.params.id);
+
+    if (!empresa) {
+      return res.status(404).json({
+        erro: "Empresa não encontrada."
+      });
+    }
+
+    res.status(200).json({
+      mensagem: "Empresa excluída com sucesso."
+    });
   } catch (error) {
     next(error);
   }

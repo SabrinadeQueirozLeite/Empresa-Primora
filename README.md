@@ -64,5 +64,6 @@ DELETE	/api/users/:id	Remove um usuário	Sim
 
 
 **Diagrama de Banco de Dados**
+![Diagrama do Banco de Dados](mer/mer.png)
 
 **Configurações do Ambiente**

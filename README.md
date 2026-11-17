@@ -56,9 +56,14 @@
 
 | MÉTODO | ROTA                  | DESCRIÇÃO              |
 |--------|-----------------------|------------------------|
-| GET    | /api/users            | Listar usuários        |
-| GET    | /api/users/:id        | Buscar usuário por ID  |
-| POST   | /api/users            | Criar usuário          |
+| GET    |/                      | Teste com sucesso!|
+| GET    |/telefones             | Retorna os telefones|
+| GET    |/empresas/:id          | Retorna empresa pelo ID|
+| GET    |/empresas/:id/auditoria| Retorna empresa pelo ID da auditoria|
+| GET    |/empresas/             | Mostra todas as empresa|
+| POST   |/ empresas             |Cadastra uma nova empresa|
+| PUT    | /api/users/:id        | Atualizar usuário      |
+| DELETE | /api/users/:id        | Excluir usuário        |
 | PUT    | /api/users/:id        | Atualizar usuário      |
 | DELETE | /api/users/:id        | Excluir usuário        |
 

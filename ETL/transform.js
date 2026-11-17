@@ -43,7 +43,7 @@ function chaveBairro(texto) {
 
 export function normalizarBairro(original) {
     if (vazio(original)) {
-        return { valor: null, criterio: "bairro ausente", fonte: "CSV" };
+        return { valor: null, criterio: "bairro ausente", fonte: "regra local" };
     }
 
     const chave = chaveBairro(original);

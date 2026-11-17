@@ -165,6 +165,7 @@ async function iniciarServidor() {
     await db.encerrarConexao?.();
     process.exitCode = 1;
   }
+
 }
 
 iniciarServidor();

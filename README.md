@@ -21,17 +21,6 @@ empresas existentes são atualizadas quando o ETL é executado novamente.
 
 **Estrutura do Projeto**
 
-**Rotas da aplicação
-Método	Rota	Descrição	Autenticação
-GET	/api/users	Lista todos os usuários	Sim
-GET	/api/users/:id	Busca um usuário pelo ID	Sim
-POST	/api/users	Cadastra um novo usuário	Sim
-PUT	/api/users/:id	Atualiza os dados de um usuário	Sim
-DELETE	/api/users/:id	Remove um usuário	Sim
-
-
-
-
 ```text
 ├── API/                             # Camada de servidor web e entrega de dados
 │   ├── public/                      # Arquivos estáticos do front-end
@@ -58,6 +47,20 @@ DELETE	/api/users/:id	Remove um usuário	Sim
 ├── package-lock.json                # Trava das versões exatas das dependências
 └── package.json                     # Metadados, scripts e dependências do Node.js
 ```
+
+**Documentação da API**
+
+**Rotas da aplicação
+Método	Rota	Descrição	Autenticação
+GET	/api/users	Lista todos os usuários	Sim
+GET	/api/users/:id	Busca um usuário pelo ID	Sim
+POST	/api/users	Cadastra um novo usuário	Sim
+PUT	/api/users/:id	Atualiza os dados de um usuário	Sim
+DELETE	/api/users/:id	Remove um usuário	Sim
+
+
+
+
 
 
 **Diagrama de Banco de Dados**

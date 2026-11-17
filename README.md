@@ -19,6 +19,28 @@ empresas existentes são atualizadas quando o ETL é executado novamente.
 
 **Visão Geral**
 
+##Pacotes Utilizados##
+
+Aqui está a tabela formatada em Markdown, pronta para copiar e colar:
+
+| Pacote | Versão | Descrição |
+| --- | --- | --- |
+| **bcryptjs** | `^3.0.3` | Biblioteca para hash e comparação segura de senhas |
+| **csv-parser** | `^3.2.1` | Parser de fluxo rápido para leitura do arquivo CSV de clientes
+
+ |
+| **dotenv** | `^18.0.10` | Carregamento seguro de variáveis de ambiente a partir de arquivos `.env`
+
+ |
+| **express** | `^5.3.0` | Framework web para construção de APIs e gerenciamento de rotas |
+| **fast-csv** | `^5.0.8` | Biblioteca para manipulação, leitura e escrita de arquivos CSV |
+| **jsonwebtoken** | `^9.0.3` | Implementação de JSON Web Tokens (JWT) para autenticação baseada em tokens |
+| **pg** | `^8.23.1` | Cliente PostgreSQL para Node.js (adaptador de banco de dados)
+
+ |
+| **nodemon** *(dev)* | `^3.1.14` | Ferramenta de desenvolvimento para reiniciar automaticamente o servidor Node.js ao detectar alterações |
+
+
 **Estrutura do Projeto**
 
 ```text

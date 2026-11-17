@@ -50,13 +50,15 @@ empresas existentes são atualizadas quando o ETL é executado novamente.
 
 **Documentação da API**
 
-**Rotas da aplicação
-Método	Rota	Descrição	Autenticação
-GET	/api/users	Lista todos os usuários	Sim
-GET	/api/users/:id	Busca um usuário pelo ID	Sim
-POST	/api/users	Cadastra um novo usuário	Sim
-PUT	/api/users/:id	Atualiza os dados de um usuário	Sim
-DELETE	/api/users/:id	Remove um usuário	Sim
+# Documentação das Rotas
+
+| MÉTODO | ROTA                  | DESCRIÇÃO              |
+|--------|-----------------------|------------------------|
+| GET    | /api/users            | Listar usuários        |
+| GET    | /api/users/:id        | Buscar usuário por ID  |
+| POST   | /api/users            | Criar usuário          |
+| PUT    | /api/users/:id        | Atualizar usuário      |
+| DELETE | /api/users/:id        | Excluir usuário        |
 
 
 

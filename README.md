@@ -29,7 +29,7 @@ empresas existentes são atualizadas quando o ETL é executado novamente.
 │   └── server.js                    # Inicialização do servidor e rotas da API
 ├── ETL/                             # Pipeline de Extração, Transformação e Carga
 │   ├── data/                        # Armazenamento de dados brutos ou processados
-│   ├── test/                        # Suíte de testes automatizados
+│   ├── test/                        # Testes
 │   │   ├── Viacep.test.js           # Testes unitários da integração com o ViaCEP
 │   │   └── transform.test.js        # Testes unitários das regras de transformação
 │   ├── extract.js                   # Extração dos dados de origem

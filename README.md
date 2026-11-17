@@ -64,6 +64,9 @@ DELETE	/api/users/:id	Remove um usuário	Sim
 
 
 **Diagrama de Banco de Dados**
-![Diagrama do Banco de Dados](MER/MER.png)
+## Diagrama do Banco de Dados
+
+<img src="MER/MER.png" alt="Diagrama do Banco de Dados" height="300" />
+
 
 **Configurações do Ambiente**

@@ -5,7 +5,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import  jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-
 import { autenticarToken } from "./auth.js";
 
 const port = process.env.PORT || 3000; // Porta do servidor (padrão 3000)

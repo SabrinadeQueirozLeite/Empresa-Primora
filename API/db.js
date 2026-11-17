@@ -261,6 +261,7 @@ async function excluirEmpresa(id) {
     );
 
     return rows[0] ?? null;
+}
 
     async function selecionarUsuarioPorEmail(email) {
         const{rows}=  await pool.query(
@@ -270,7 +271,7 @@ async function excluirEmpresa(id) {
         );
         return rows [0] ?? null;
     }
-}
+
 
 export default {
     pool,

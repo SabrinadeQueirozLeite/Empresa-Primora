@@ -191,16 +191,16 @@ npm install -D nodemon
 ### 3. Configuração das Variáveis de Ambiente
 Crie um arquivo .env na raiz do projeto e configure as variáveis de acesso ao banco de dados. Ajuste o DB_PORT se o PostgreSQL não utilizar a porta padrão.
 
-`
+```env
 DB_USER=seu_usuario
 DB_PASSWORD=sua_senha
 DB_NAME=nome_do_banco
 DB_HOST=localhost
 DB_PORT=5432
-`
+```
 
 ### 4. Configuração do Banco de Dados
-Crie o banco de dados no PostgreSQL e execute o script SQL de modelagem (localizado na pasta sql/) para estruturar as tabelas e relacionamentos necessários para o funcionamento do ETL e da aplicação.
+Crie o banco de dados no PostgreSQL e execute o script SQL de modelagem (localizado na pasta `sql/`) para estruturar as tabelas e relacionamentos necessários para o funcionamento do ETL e da aplicação.
 
 ### 5. Execução da Aplicação
 Com as tabelas do banco já criadas, execute o pipeline ETL.

@@ -163,16 +163,45 @@ Os relacionamentos definem como as entidades se conectam no banco de dados, esta
 
 
 ## Configurações do Ambiente ##
-**Execução do ETL**
 
-Configure `DB_USER`, `DB_PASSWORD`, `DB_NAME` e `DB_HOST` no arquivo `.env` (e
-`DB_PORT` se o PostgreSQL não usar a porta padrão). Com as tabelas do banco já
-criadas, execute:
+Passo a passo para configurar e rodar o projeto em sua máquina.
+
+### 1. Pré-requisitos
+É necessário ter as seguintes ferramentas instaladas em seu ambiente de desenvolvimento:
+* **Node.js**
+* **PostgreSQL**
+
+### 2. Instalação das Dependências
+
+```bash
+# Iniciando o projeto com Node.js
+npm init -y
+
+# Instalando as dependências principais
+npm install bcryptjs csv-parser dotenv express fast-csv jsonwebtoken pg
+
+# Instalando a dependência de desenvolvimento (nodemon)
+npm install -D nodemon
+```
+
+### 3. Configuração das Variáveis de Ambiente
+Crie um arquivo .env na raiz do projeto e configure as variáveis de acesso ao banco de dados. Ajuste o DB_PORT se o PostgreSQL não utilizar a porta padrão.
+
+DB_USER=seu_usuario
+DB_PASSWORD=sua_senha
+DB_NAME=nome_do_banco
+DB_HOST=localhost
+DB_PORT=5432
+
+### 4. Configuração do Banco de Dados
+Crie o banco de dados no PostgreSQL e execute o script SQL de modelagem (localizado na pasta sql/) para estruturar as tabelas e relacionamentos necessários para o funcionamento do ETL e da aplicação.
+
+### 5. Execução da Aplicação
+Com as tabelas do banco já criadas, execute o pipeline ETL.
 
 ```bash
 npm run etl
 ```
-
 O processo lê `ETL/data/clientes_distribuidora_vetor.csv`, normaliza os dados e
 grava empresas, vendedores, telefones e endereços em uma única transação. As
 empresas existentes são atualizadas quando o ETL é executado novamente.

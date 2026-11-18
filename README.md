@@ -1,6 +1,18 @@
 # Projeto-Primora
 
 
+## Sumário
+
+* [Visão Geral](#visão-geral)
+* [Pacotes Utilizados](#pacotes-utilizados)
+* [Estrutura do Projeto](#estrutura-do-projeto)
+* [Diagrama do Banco de Dados](#diagrama-do-banco-de-dados)
+  * [Entidades](#entidades)
+  * [Relacionamentos e Cardinalidades](#relacionamentos-e-cardinalidades)
+  * [Campos Críticos](#campos-críticos)
+* [Documentação da API](#documentação-da-api)
+* [Configurações do Ambiente](#configurações-do-ambiente)
+
 ## Visão Geral
 <div align="justify">
 O projeto Empresa Primora tem como objetivo organizar e qualificar os dados cadastrais fictícios da Distribuidora Vetor, uma atacadista B2B que comercializa produtos para varejistas por meio de uma equipe de vendas externa.

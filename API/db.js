@@ -87,16 +87,15 @@ async function adicionarEmpresa(empresa) {
 
         const { rows } = await client.query(
             `INSERT INTO empresa (
-                id_empresa, cnpj, razao_social, email, data_cadastro, id_vendedor
+                id_empresa, cnpj, razao_social, email, id_vendedor
             )
-            VALUES ($1, $2, $3, $4, $5, $6)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *`,
             [
                 empresa.id_empresa,
                 empresa.cnpj,
                 empresa.razao_social,
                 empresa.email ?? null,
-                empresa.data_cadastro ?? null,
                 empresa.id_vendedor ?? null,
             ]
         );
@@ -265,13 +264,12 @@ async function excluirEmpresa(id) {
 
     async function selecionarUsuarioPorEmail(email) {
         const{rows}=  await pool.query(
-            `SELECT id_usuario, nome, email, senha_hash, perfil from usuarios
+            `SELECT id_usuario, nome, email, senha, perfil from usuarios
             where email =$1`,
             [email]
         );
         return rows [0] ?? null;
     }
-
 
 export default {
     pool,

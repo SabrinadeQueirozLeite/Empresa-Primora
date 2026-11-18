@@ -22,3 +22,4 @@ export function autenticarToken(req, res, next) {
     next();
   });
 }
+

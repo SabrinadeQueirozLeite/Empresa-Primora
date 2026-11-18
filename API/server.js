@@ -4,7 +4,6 @@ import db from "./db.js"; // Importa o módulo de conexão com o banco de dados
 import path from "path";
 import { fileURLToPath } from "url";
 import  jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
 import { autenticarToken } from "./auth.js";
 
 const port = process.env.PORT || 3000; // Porta do servidor (padrão 3000)
@@ -83,16 +82,65 @@ app.get("/relatorios/ajustes", async (req, res, next) => {
   }
 });
 
+app.post("/login", async (req, res, next) => {
+  try {
+    const { email, senha } = req.body;
+
+    if (!email || !senha) {
+      return res.status(400).json({
+        erro: "Informe e-mail e senha."
+      });
+    }
+
+    const usuario = await db.selecionarUsuarioPorEmail(email);
+
+    if (!usuario) {
+      return res.status(401).json({
+        erro: "E-mail ou senha incorretos."
+      });
+    }
+
+    // Compara a senha digitada com a senha salva no banco
+  const senhaValida = senha === usuario.senha;
+
+  // Verifica se a senha está correta
+  if (!senhaValida) {
+      return res.status(401).json({
+          erro: "E-mail ou senha incorretos."
+      });
+  }
+
+    const token = jwt.sign(
+    {
+      id: usuario.id_usuario,
+      email: usuario.email,
+      perfil: usuario.perfil
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn: "1h"
+    })
+
+    res.status(200).json({
+      mensagem: "Login realizado com sucesso!",
+      token
+    });
+
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/empresas", autenticarToken, async (req, res, next) => {
   if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
     return res.status(400).json({ erro: "O corpo deve ser um objeto JSON." });
   }
 
-  const { id_empresa, razao_social, cnpj } = req.body;
-  if (!id_empresa || !razao_social || !cnpj) {
+  const { id_empresa, cnpj, razao_social, email } = req.body;
+  if (!id_empresa || !cnpj || !razao_social || !email) {
     return res
       .status(400)
-      .json({ erro: "Campos obrigatórios: id_empresa, razao_social e cnpj." });
+      .json({ erro: "Campos obrigatórios: id_empresa, cnpj, razao_social e email" });
   }
 
   try {

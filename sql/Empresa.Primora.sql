@@ -59,16 +59,6 @@ fonte varchar(50),
 CONSTRAINT pk_auditoria primary key (id_auditoria),
 CONSTRAINT fk_auditoria_empresa foreign key (id_empresa) REFERENCES empresa(id_empresa)
 );
--- tabela criada para autenticação
-CREATE TABLE usuarios(
-    id_usuario serial,
-    nome varchar(150)not null,
-    email varchar(150)not null unique,
-    senha_hash varchar(255)not null,
-    perfil varchar(20) default 'usuario',
-    criado_em timestemp default current_timestamp
-);
-
 
 -- Rode este arquivo UMA vez (no pgAdmin) se você JÁ criou o banco com o script antigo.
 
@@ -133,3 +123,22 @@ BEGIN
         END IF;
     END LOOP;
 END $$;
+
+
+-- Tabela criada para autenticação
+CREATE TABLE usuarios(
+    id_usuario serial primary key,
+    nome varchar(150)not null,
+    email varchar(150)not null unique,
+    senha varchar(20)not null,
+    perfil varchar(20) default 'usuario',
+    criado_em timestamp set default CURRENT_DATE -- Configura a data automática para os próximos registros
+);
+
+INSERT INTO usuarios (nome, email, senha, perfil)
+VALUES (
+    'Administrador',
+    'admin@primora.com',
+    'admin1',
+    'admin'
+);

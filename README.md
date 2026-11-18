@@ -11,6 +11,7 @@ Entretanto, os registros apresentam diferentes formatos de preenchimento, inform
 
 Como parte desse processo, foi desenvolvida uma integração com a API ViaCEP para consultar os dados de endereço a partir do CEP informado no cadastro. O retorno da API é utilizado como referência para comparar as informações originais com os dados consultados, permitindo identificar divergências e sinalizar registros que necessitam de revisão. Dessa forma, a integração complementa as etapas de tratamento do ETL, contribuindo para a padronização dos endereços e para a confiabilidade dos dados armazenados.
 </div>
+
 ## Pacotes Utilizados ##
 
 | Pacote | Versão | Descrição |
@@ -57,6 +58,90 @@ Como parte desse processo, foi desenvolvida uma integração com a API ViaCEP pa
 ## Diagrama do Banco de Dados ##
 
 <img src="MER/MER.png" alt="Diagrama do Banco de Dados" height="300" />
+
+
+## Entidades
+
+### 1. Vendedor
+
+Responsável por representar os vendedores vinculados ao atendimento das empresas cadastradas no sistema. Um vendedor pode atender uma ou várias empresas, permitindo identificar o responsável comercial por cada cadastro.
+
+| Campo | Descrição |
+|:---|:---|
+| `id_vendedor` | Identificador único do vendedor (**Chave Primária – PK**). |
+| `nome` | Nome completo do vendedor. |
+
+### 2. Empresa
+
+Representa a entidade central do sistema, armazenando as principais informações cadastrais e de identificação de cada organização. Está relacionada às demais entidades, concentrando os vínculos com vendedores, telefones, endereços e registros de auditoria.
+
+| Campo | Descrição |
+|:---|:---|
+| `id_empresa` | Identificador único da empresa (**Chave Primária – PK**). |
+| `cnpj` | Cadastro Nacional da Pessoa Jurídica, utilizado para identificar a empresa. |
+| `razao_social` | Denominação jurídica da empresa. |
+| `email` | Endereço de e-mail para contato. |
+| `data_cadastro` | Data em que a empresa foi registrada no sistema. |
+
+### 3. Telefone
+
+Armazena os números de telefone associados às empresas, permitindo registrar múltiplos contatos para uma mesma organização e identificar a finalidade ou classificação de cada número.
+
+| Campo | Descrição |
+|:---|:---|
+| `id_telefone` | Identificador único do telefone (**Chave Primária – PK**). |
+| `ddd` | Código de Discagem Direta à Distância. |
+| `numero` | Número telefônico associado à empresa. |
+| `tipo` | Classificação do telefone, como comercial, celular ou residencial. |
+
+### 4. Endereço
+
+Armazena as informações de localização das empresas, permitindo identificar seus endereços por meio de dados postais e informações de logradouro.
+
+| Campo | Descrição |
+|:---|:---|
+| `id_endereco` | Identificador único do endereço (**Chave Primária – PK**). |
+| `cep` | Código de Endereçamento Postal. |
+| `logradouro` | Nome da rua, avenida ou via. |
+| `bairro` | Bairro onde a empresa está localizada. |
+| `cidade` | Município correspondente ao endereço. |
+| `uf` | Unidade Federativa do endereço. |
+
+### 5. Auditoria
+
+Responsável por armazenar os registros de auditoria relacionados aos dados das empresas. Permite acompanhar alterações e tratamentos realizados nas informações, preservando o histórico dos valores originais e tratados, bem como os critérios e as fontes utilizados no processo.
+
+| Campo | Descrição |
+|:---|:---|
+| `id_auditoria` | Identificador único do registro de auditoria (**Chave Primária – PK**). |
+| `campo` | Nome do campo que passou por alteração ou tratamento. |
+| `valor_original` | Valor da informação antes do tratamento. |
+| `valor_tratado` | Valor da informação após o tratamento. |
+| `criterio` | Regra ou critério utilizado para realizar o tratamento. |
+| `fonte` | Origem da informação utilizada no processo. |
+### Relacionamentos e Cardinalidades
+
+Os relacionamentos definem como as entidades se conectam no banco de dados, estabelecendo as regras de associação entre os registros.
+
+| Relacionamento | Cardinalidade | Descrição |
+|:---|:---:|:---|
+| Vendedor — Empresa | 1:N | Um vendedor pode atender várias empresas, enquanto cada empresa está vinculada a um único vendedor. |
+| Empresa — Telefone | 1:N | Uma empresa pode possuir vários telefones, enquanto cada telefone pertence a uma única empresa. |
+| Empresa — Endereço | 1:1 | Cada empresa possui um endereço, e cada endereço está associado exclusivamente a uma empresa. |
+| Empresa — Auditoria | 1:N | Uma empresa pode possuir vários registros de auditoria, enquanto cada registro de auditoria pertence a uma única empresa. |
+
+### 3. Campos Críticos 
+
+| Elemento | Campos relacionados | Importância |
+|:---|:---|:---|
+| **Identificação** | `id_*` | Identificam exclusivamente cada registro por meio de chaves primárias (PK). |
+| **Dados empresariais** | `cnpj`, `razao_social` | Permitem identificar e diferenciar as empresas cadastradas. |
+| **Responsabilidade comercial** | `Vendedor`, `Empresa` | Identifica o vendedor responsável pelo atendimento de cada empresa. |
+| **Dados de contato** | `email`, `ddd`, `numero`, `cep`, `logradouro`, `bairro`, `cidade`, `uf` | Permitem a comunicação e a localização das empresas. |
+| **Controle cadastral** | `data_cadastro` | Registra a data de inclusão da empresa no sistema. |
+| **Auditoria** | `campo`, `valor_original`, `valor_tratado` | Permitem identificar e comparar alterações realizadas nos dados. |
+| **Rastreabilidade** | `criterio`, `fonte` | Registram as regras aplicadas e a origem das informações. |
+
 
 **Documentação da API**
 

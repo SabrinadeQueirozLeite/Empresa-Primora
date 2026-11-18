@@ -130,7 +130,7 @@ Os relacionamentos definem como as entidades se conectam no banco de dados, esta
 | Empresa — Endereço | 1:1 | Cada empresa possui um endereço, e cada endereço está associado exclusivamente a uma empresa. |
 | Empresa — Auditoria | 1:N | Uma empresa pode possuir vários registros de auditoria, enquanto cada registro de auditoria pertence a uma única empresa. |
 
-### 3. Campos Críticos 
+### Campos Críticos 
 
 | Elemento | Campos relacionados | Importância |
 |:---|:---|:---|

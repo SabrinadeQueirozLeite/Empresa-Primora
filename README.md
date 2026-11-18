@@ -143,7 +143,7 @@ Os relacionamentos definem como as entidades se conectam no banco de dados, esta
 | **Rastreabilidade** | `criterio`, `fonte` | Registram as regras aplicadas e a origem das informações. |
 
 
-**Documentação da API**
+##Documentação da API##
 
 # Documentação das Rotas
 

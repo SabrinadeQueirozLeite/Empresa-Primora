@@ -145,7 +145,7 @@ Os relacionamentos definem como as entidades se conectam no banco de dados, esta
 
 # Documentação da API
 
-## Endpoints Principais
+### Endpoints Principais
 
 | MÉTODO | ROTA                  | DESCRIÇÃO              |
 |--------|-----------------------|------------------------|

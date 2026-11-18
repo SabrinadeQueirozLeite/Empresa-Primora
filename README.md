@@ -2,7 +2,7 @@
 
 
 ## Visão Geral
-
+<div align="justify">
 O projeto Empresa Primora tem como objetivo organizar e qualificar os dados cadastrais fictícios da Distribuidora Vetor, uma atacadista B2B que comercializa produtos para varejistas por meio de uma equipe de vendas externa.
 
 A base original apresenta informações concentradas em um único arquivo CSV, incluindo identificação das empresas, CNPJ, telefone, e-mail, endereço, data de cadastro e vendedor responsável.
@@ -10,7 +10,7 @@ A base original apresenta informações concentradas em um único arquivo CSV, i
 Entretanto, os registros apresentam diferentes formatos de preenchimento, informações ausentes e possíveis inconsistências. Por esse motivo, foi desenvolvido um processo ETL (Extract, Transform, Load), responsável pela extração dos registros, aplicação de regras de tratamento e carregamento das informações no PostgreSQL.
 
 Como parte desse processo, foi desenvolvida uma integração com a API ViaCEP para consultar os dados de endereço a partir do CEP informado no cadastro. O retorno da API é utilizado como referência para comparar as informações originais com os dados consultados, permitindo identificar divergências e sinalizar registros que necessitam de revisão. Dessa forma, a integração complementa as etapas de tratamento do ETL, contribuindo para a padronização dos endereços e para a confiabilidade dos dados armazenados.
-
+</div>
 ## Pacotes Utilizados ##
 
 | Pacote | Versão | Descrição |

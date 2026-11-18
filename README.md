@@ -174,7 +174,7 @@ Passo a passo para configurar e rodar o projeto em sua máquina.
 ### 2. Clonagem do Repositório
 ```bash
 git clone https://github.com/SabrinadeQueirozLeite/Empresa-Primora
-cd 
+cd Empresa-Primora
 ```
 
 ### 3. Instalação das Dependências

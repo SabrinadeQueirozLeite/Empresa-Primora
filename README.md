@@ -173,25 +173,31 @@ Passo a passo para configurar e rodar o projeto em sua máquina.
 
 ### 2. Instalação das Dependências
 
-```bash
 # Iniciando o projeto com Node.js
+```bash
 npm init -y
+```
 
 # Instalando as dependências principais
+```bash
 npm install bcryptjs csv-parser dotenv express fast-csv jsonwebtoken pg
+```
 
 # Instalando a dependência de desenvolvimento (nodemon)
+```bash
 npm install -D nodemon
 ```
 
 ### 3. Configuração das Variáveis de Ambiente
 Crie um arquivo .env na raiz do projeto e configure as variáveis de acesso ao banco de dados. Ajuste o DB_PORT se o PostgreSQL não utilizar a porta padrão.
 
+`
 DB_USER=seu_usuario
 DB_PASSWORD=sua_senha
 DB_NAME=nome_do_banco
 DB_HOST=localhost
 DB_PORT=5432
+`
 
 ### 4. Configuração do Banco de Dados
 Crie o banco de dados no PostgreSQL e execute o script SQL de modelagem (localizado na pasta sql/) para estruturar as tabelas e relacionamentos necessários para o funcionamento do ETL e da aplicação.

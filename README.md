@@ -173,17 +173,17 @@ Passo a passo para configurar e rodar o projeto em sua máquina.
 
 ### 2. Instalação das Dependências
 
-# Iniciando o projeto com Node.js
+#### Iniciando o projeto com Node.js
 ```bash
 npm init -y
 ```
 
-# Instalando as dependências principais
+#### Instalando as dependências principais
 ```bash
 npm install bcryptjs csv-parser dotenv express fast-csv jsonwebtoken pg
 ```
 
-# Instalando a dependência de desenvolvimento (nodemon)
+#### Instalando a dependência de desenvolvimento (nodemon)
 ```bash
 npm install -D nodemon
 ```

@@ -143,9 +143,9 @@ Os relacionamentos definem como as entidades se conectam no banco de dados, esta
 | **Rastreabilidade** | `criterio`, `fonte` | Registram as regras aplicadas e a origem das informações. |
 
 
-##Documentação da API##
+# Documentação da API
 
-# Documentação das Rotas
+## Endpoints Principais
 
 | MÉTODO | ROTA                  | DESCRIÇÃO              |
 |--------|-----------------------|------------------------|
@@ -171,7 +171,13 @@ Passo a passo para configurar e rodar o projeto em sua máquina.
 * **Node.js**
 * **PostgreSQL**
 
-### 2. Instalação das Dependências
+### 2. Clonagem do Repositório
+```bash
+git clone https://github.com/
+cd 
+```
+
+### 3. Instalação das Dependências
 
 #### Iniciando o projeto com Node.js
 ```bash
@@ -188,7 +194,7 @@ npm install bcryptjs csv-parser dotenv express fast-csv jsonwebtoken pg
 npm install -D nodemon
 ```
 
-### 3. Configuração das Variáveis de Ambiente
+### 4. Configuração das Variáveis de Ambiente
 Crie um arquivo .env na raiz do projeto e configure as variáveis de acesso ao banco de dados. Ajuste o DB_PORT se o PostgreSQL não utilizar a porta padrão.
 
 ```env
@@ -199,10 +205,10 @@ DB_HOST=localhost
 DB_PORT=5432
 ```
 
-### 4. Configuração do Banco de Dados
+### 5. Configuração do Banco de Dados
 Crie o banco de dados no PostgreSQL e execute o script SQL de modelagem (localizado na pasta `sql/`) para estruturar as tabelas e relacionamentos necessários para o funcionamento do ETL e da aplicação.
 
-### 5. Execução da Aplicação
+### 6. Execução da Aplicação
 Com as tabelas do banco já criadas, execute o pipeline ETL.
 
 ```bash

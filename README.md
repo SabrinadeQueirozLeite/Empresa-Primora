@@ -45,6 +45,8 @@ Como parte desse processo, foi desenvolvida uma integração com a API ViaCEP pa
 │   │   └── index.html               # Interface web para consulta dos dados
 │   ├── db.js                        # Configuração e conexão com o banco de dados
 │   └── server.js                    # Inicialização do servidor e rotas da API
+├── docs/                            # Documentação e material visual do projeto
+│   └── mer.png                      # Diagrama do Modelo Entidade-Relacionamento (MER)
 ├── ETL/                             # Pipeline de Extração, Transformação e Carga
 │   ├── data/                        # Armazenamento de dados brutos ou processados
 │   ├── test/                        # Testes
@@ -155,19 +157,19 @@ Os relacionamentos definem como as entidades se conectam no banco de dados, esta
 
 ### Endpoints Principais
 
-| MÉTODO | ROTA                  | DESCRIÇÃO              |
-|--------|-----------------------|------------------------|
-| GET    |/                      | Teste com sucesso!|
-| GET    |/telefones             | Retorna os telefones|
-| GET    |/empresas/:id          | Retorna empresa pelo ID|
-| GET    |/empresas/:id/auditoria| Retorna empresa pelo ID da auditoria|
-| GET    |/empresas/             | Mostra todas as empresa|
-| POST   |/ empresas             |Cadastra uma nova empresa|
-| PUT    | /api/users/:id        | Atualizar usuário      |
-| DELETE | /api/users/:id        | Excluir usuário        |
-| PUT    | /api/users/:id        | Atualizar usuário      |
-| DELETE | /api/users/:id        | Excluir usuário        |
-
+| MÉTODO | ROTA                      | DESCRIÇÃO                                  |
+|--------|---------------------------|--------------------------------------------|
+| GET    | `/`                       | Testa se o servidor está funcionando       |
+| GET    | `/empresas`               | Lista todas as empresas                    |
+| GET    | `/empresas/:id`           | Retorna uma empresa pelo ID                |
+| GET    | `/empresas/:id/auditoria` | Retorna o histórico de auditoria da empresa|
+| GET    | `/telefones`              | Lista os telefones cadastrados             |
+| GET    | `/relatorios/bairros`     | Relatório de empresas por bairro           |
+| GET    | `/relatorios/ajustes`     | Relatório de ajustes feitos nos dados      |
+| POST   | `/login`                  | Realiza login e retorna o token JWT        |
+| POST   | `/empresas`               | Cadastra uma nova empresa                  |
+| PUT    | `/empresas/:id`           | Atualiza uma empresa                       |
+| DELETE | `/empresas/:id`           | Exclui uma empresa                         |
 
 
 ## Configurações do Ambiente ##
@@ -194,7 +196,7 @@ npm init -y
 
 #### Instalando as dependências principais
 ```bash
-npm install bcryptjs csv-parser dotenv express fast-csv jsonwebtoken pg
+npm install csv-parser dotenv express fast-csv jsonwebtoken pg
 ```
 
 #### Instalando a dependência de desenvolvimento (nodemon)

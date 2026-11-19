@@ -7,7 +7,6 @@
 
 | Pacote | Versão | Descrição |
 | :--- | :--- | :--- |
-| **bcryptjs** | `^3.0.3` | Biblioteca para hash e comparação segura de senhas |
 | **csv-parser** | `^3.2.1` | Parser de fluxo rápido para leitura do arquivo CSV de clientes |
 | **dotenv** | `^18.0.10` | Carregamento seguro de variáveis de ambiente a partir de arquivos `.env` |
 | **express** | `^5.3.0` | Framework web para construção de APIs e gerenciamento de rotas |
@@ -35,9 +34,6 @@
 │   ├── load.js                      # Inserção dos dados tratados no banco de dados
 │   ├── transform.js                 # Limpeza, padronização e enriquecimento dos dados
 │   └── viacep.js                    # Consulta de endereços na API pública do ViaCEP
-├── MER/                             # Documentação visual do banco de dados
-│   ├── MER.png                      # Imagem do Modelo Entidade-Relacionamento
-│   └── mer_conceitual.excalidraw    # Arquivo editável do diagrama no Excalidraw
 ├── sql/                             # Scripts de banco de dados
 │   └── Empresa.Primora.sql          # Script SQL para criação das tabelas e estrutura
 ├── .gitignore                       # Arquivos ignorados pelo controle de versão (Git)
@@ -48,7 +44,7 @@
 
 ## Diagrama do Banco de Dados ##
 
-<img src="MER/MER.png" alt="Diagrama do Banco de Dados" height="300" />
+<img src="docs/MER.png" alt="Diagrama do Banco de Dados" height="300" />
 
 **Documentação da API**
 

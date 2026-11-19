@@ -23,7 +23,7 @@ CREATE TABLE empresa (
  bairro_informado varchar(40),
  cidade varchar(40),
  uf char(2),
- id_empresa varchar(10),
+ id_empresa varchar(10) unique,
  CONSTRAINT pk_endereco primary key (id_endereco),
  CONSTRAINT fk_edereco_empresa foreign key (id_empresa) REFERENCES empresa(id_empresa)
 );
@@ -126,14 +126,15 @@ END $$;
 
 
 -- Tabela criada para autenticação
-CREATE TABLE usuarios(
+ CREATE TABLE usuarios(
     id_usuario serial primary key,
     nome varchar(150)not null,
     email varchar(150)not null unique,
     senha varchar(20)not null,
     perfil varchar(20) default 'usuario',
-    criado_em timestamp set default CURRENT_DATE -- Configura a data automática para os próximos registros
+    criado_em  timestamp default CURRENT_timestamp -- Configura a data automática para os próximos registros
 );
+
 
 INSERT INTO usuarios (nome, email, senha, perfil)
 VALUES (
@@ -142,3 +143,4 @@ VALUES (
     'admin1',
     'admin'
 );
+

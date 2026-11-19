@@ -205,7 +205,7 @@ npm install -D nodemon
 ```
 
 ### 4. Configuração das Variáveis de Ambiente
-Crie um arquivo .env na raiz do projeto e configure as variáveis de acesso ao banco de dados. Ajuste o DB_PORT se o PostgreSQL não utilizar a porta padrão.
+Crie um arquivo `.env` na raiz do projeto e configure as variáveis de acesso ao banco de dados. Ajuste o DB_PORT se o PostgreSQL não utilizar a porta padrão.
 
 ```env
 DB_USER=seu_usuario
@@ -213,6 +213,14 @@ DB_PASSWORD=sua_senha
 DB_NAME=nome_do_banco
 DB_HOST=localhost
 DB_PORT=5432
+```
+
+Configure no arquivo `package.json`, na parte de `scripts` esses dois atalhos para execução do projeto:
+```bash
+"scripts": {
+  "etl": "node ETL/index.js",
+  "api": "node API/server.js"
+}
 ```
 
 ### 5. Configuração do Banco de Dados

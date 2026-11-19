@@ -215,7 +215,7 @@ DB_HOST=localhost
 DB_PORT=5432
 ```
 
-Configure no arquivo `package.json`, na parte de `scripts` esses dois atalhos para execução do projeto:
+Confira no arquivo `package.json`, na parte de `scripts` esses dois atalhos para execução do projeto:
 ```bash
 "scripts": {
   "etl": "node ETL/index.js",

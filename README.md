@@ -224,11 +224,12 @@ Crie o banco de dados no PostgreSQL e execute o script SQL de modelagem (localiz
 Com as tabelas do banco já criadas, execute o pipeline ETL.
 
 ```bash
-npm run api
-```
-```bash
 npm run etl
 ```
+```bash
+npm run api
+```
+
 O processo lê `ETL/data/clientes_distribuidora_vetor.csv`, normaliza os dados e
 grava empresas, vendedores, telefones e endereços em uma única transação. As
 empresas existentes são atualizadas quando o ETL é executado novamente.

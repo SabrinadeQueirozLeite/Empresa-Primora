@@ -39,6 +39,33 @@
 
   .pagina { max-width: 1120px; margin: 0 auto; padding: 0 1.25rem 4rem; }
 
+  [hidden] { display: none !important; }
+  /* ---------- Abas e formulários ---------- */
+  .abas { display: flex; flex-wrap: wrap; gap: .25rem; }
+  .abas a { padding: .45rem .8rem; color: var(--tinta-2); text-decoration: none; font-weight: 600; border-bottom: 3px solid transparent; }
+  .abas a:hover { color: var(--tinta); }
+  .abas a[aria-current="page"] { color: var(--tinta); border-color: var(--ipe); }
+  form.cadastro { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .9rem; }
+  form.cadastro label, .api-controles label { display: flex; flex-direction: column; gap: .25rem; font-size: .85rem; color: var(--tinta-2); }
+  form.cadastro input, .api-controles select, .api-controles input { padding: .55rem .7rem; border: 1px solid var(--tinta-2); border-radius: 3px; background: var(--papel); color: var(--tinta); font: inherit; min-width: 12rem; }
+  .botao { padding: .65rem 1.1rem; border: 0; border-radius: 3px; background: var(--ceu); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  .botao:hover { background: #174d87; }
+  .aviso { margin: 0 0 1rem; padding: .8rem 1rem; background: var(--ipe-bg); border-left: 4px solid var(--ipe); font-size: .92rem; }
+  .resultado { margin-top: 1rem; padding: .8rem 1rem; border-left: 4px solid var(--cerrado); background: var(--cerrado-bg); }
+  .resultado.erro { border-color: var(--erro); background: var(--erro-bg); }
+  .api-controles { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; }
+  pre.resposta { margin: 1rem 0 0; max-height: 26rem; overflow: auto; padding: 1rem; background: var(--tinta); color: #E8EEF4; font: .85rem/1.5 ui-monospace, Consolas, monospace; border-radius: 3px; }
+  .topo { flex-wrap: wrap; }
+
+  .acoes { margin-top: 1.75rem; padding-top: 1rem; border-top: 1px solid var(--linha); display: flex; flex-wrap: wrap; gap: .6rem; }
+  .acoes form { width: 100%; }
+  .botao.perigo { background: var(--erro); }
+  dialog.modal { border: 0; border-top: 5px solid var(--tinta); padding: 1.4rem; width: min(380px, 92vw); background: var(--papel); color: var(--tinta); box-shadow: 0 18px 48px rgba(24,37,52,.3); }
+  dialog.modal::backdrop { background: rgba(24,37,52,.5); }
+  dialog.modal h2 { margin: 0 0 1rem; font-size: 1.2rem; }
+  dialog.modal label { display: flex; flex-direction: column; gap: .25rem; margin-bottom: .8rem; font-size: .85rem; color: var(--tinta-2); }
+  dialog.modal input { padding: .55rem .7rem; border: 1px solid var(--tinta-2); border-radius: 3px; font: inherit; }
+
   /* ---------- Topo ---------- */
   .topo {
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
@@ -189,10 +216,14 @@
 
   <header class="topo">
     <div class="marca">Distribuidora Vetor<small>Base de clientes depois do ETL</small></div>
+    <nav class="abas" id="abas" aria-label="Seções">
+      <a href="#/resumo">Resumo</a><a href="#/empresas">Empresas</a><a href="#/telefones">Telefones</a><a href="#/cadastrar">Cadastrar</a><a href="#/api">Explorar a API</a>
+    </nav>
     <span class="estado" id="estado" role="status">Conectando à API…</span>
+    <button class="fechar" type="button" id="sessao">Entrar</button>
   </header>
 
-  <section class="abertura">
+  <section class="abertura" data-vista="resumo">
     <h1 id="titulo">Carregando os dados…</h1>
     <p class="apoio" id="apoio"></p>
     <ul class="numeros" id="numeros"></ul>
@@ -202,7 +233,7 @@
     </div>
   </section>
 
-  <div class="duas-colunas">
+  <div class="duas-colunas" data-vista="resumo">
     <section class="painel" aria-labelledby="h-bairros">
       <h2 id="h-bairros">Empresas por bairro</h2>
       <p class="dica">Abra uma linha para ver as grafias que foram unificadas naquele bairro.</p>
@@ -217,7 +248,7 @@
     </section>
   </div>
 
-  <section class="painel" aria-labelledby="h-empresas">
+  <section class="painel" aria-labelledby="h-empresas" data-vista="empresas">
     <h2 id="h-empresas">Empresas</h2>
     <p class="dica">Clique em uma empresa para ver o que foi feito no cadastro dela.</p>
     <div class="filtros">
@@ -238,8 +269,59 @@
     <p class="estado-vazio" id="sem-resultado" hidden>Nenhuma empresa encontrada. Limpe a busca ou escolha outro bairro.</p>
   </section>
 
+  <section class="painel" data-vista="telefones" aria-labelledby="h-tel">
+    <h2 id="h-tel">Telefones</h2>
+    <p class="dica">Rota <b>GET /telefones</b>. Todos os telefones já separados em DDD, número e tipo.</p>
+    <p id="cont-tel" class="contagem" aria-live="polite"></p>
+    <div class="rolagem"><table><thead><tr><th>Empresa</th><th>Telefone</th><th>Tipo</th></tr></thead><tbody id="linhas-tel"></tbody></table></div>
+  </section>
+
+  <section class="painel" data-vista="cadastrar" aria-labelledby="h-cad">
+    <h2 id="h-cad">Cadastrar empresa</h2>
+    <p class="dica">Rota <b>POST /empresas</b>.</p>
+    <p class="aviso" id="aviso-login" hidden>Para cadastrar, editar ou excluir empresas é preciso entrar. <button class="botao" type="button" id="abrir-login">Entrar</button></p>
+    <p class="aviso">Isto grava de verdade no banco. O cadastro manual não passa pelo tratamento do ETL, então digite o bairro já no padrão (por exemplo, Águas Claras).</p>
+    <form class="cadastro" id="form-empresa">
+      <label>Código *<input name="id_empresa" required maxlength="10" placeholder="CLI0100"></label>
+      <label>Razão social *<input name="razao_social" required maxlength="150"></label>
+      <label>CNPJ *<input name="cnpj" required placeholder="14 números"></label>
+      <label>E-mail *<input name="email" type="email" required></label>
+      <label>Data de cadastro<input name="data_cadastro" type="date"></label>
+      <label>CEP<input name="cep" placeholder="8 números"></label>
+      <label>Bairro<input name="bairro"></label>
+      <label>Cidade<input name="cidade"></label>
+      <label>UF<input name="uf" maxlength="2"></label>
+      <div><button class="botao" type="submit">Cadastrar empresa</button></div>
+    </form>
+    <div id="res-cad" class="resultado" hidden role="status"></div>
+  </section>
+
+  <section class="painel" data-vista="api" aria-labelledby="h-api">
+    <h2 id="h-api">Explorar a API</h2>
+    <p class="dica">Escolha uma rota, envie a requisição e veja exatamente o que a API responde.</p>
+    <div class="api-controles">
+      <label>Rota<select id="rota"></select></label>
+      <label id="rotulo-param">Código da empresa<input id="param" value="CLI0002"></label>
+      <button class="botao" type="button" id="enviar">Enviar requisição</button>
+    </div>
+    <p class="dica" id="rota-desc"></p>
+    <p id="req" aria-live="polite"></p>
+    <pre class="resposta" id="resp" tabindex="0">A resposta aparece aqui.</pre>
+  </section>
+
   <p class="rodape">Projeto Integrador, Bolsa Futuro Digital. Todos os dados são fictícios.</p>
 </div>
+
+<dialog class="modal" id="login" aria-labelledby="login-titulo">
+  <h2 id="login-titulo">Entrar</h2>
+  <form id="form-login">
+    <label>E-mail<input name="email" type="email" required autocomplete="username"></label>
+    <label>Senha<input name="senha" type="password" required autocomplete="current-password"></label>
+    <p id="login-erro" class="criterio" role="alert" style="color:var(--erro)"></p>
+    <button class="botao" type="submit">Entrar</button>
+    <button class="fechar" type="button" id="cancelar-login" style="margin-left:.5rem">Cancelar</button>
+  </form>
+</dialog>
 
 <dialog class="gaveta" id="gaveta" aria-labelledby="gaveta-titulo">
   <div class="gaveta-topo">
@@ -516,6 +598,7 @@
         auditoria.length
           ? h("ol", { class: "trilha" }, auditoria.map(itemAuditoria))
           : h("p", { class: "criterio" }, "Nenhum ajuste foi necessário: os dados já chegaram no padrão."));
+      $("#gaveta-corpo").append(...[acoesEmpresa(e)].filter(Boolean));
     } catch (erro) {
       console.error(erro);
       $("#gaveta-titulo").textContent = "Não foi possível carregar";
@@ -528,7 +611,7 @@
   $("#gaveta").addEventListener("click", (ev) => { if (ev.target === ev.currentTarget) ev.currentTarget.close(); });
 
   // ---------- Início ----------
-  (async function iniciar() {
+  async function carregarTudo() {
     try {
       const [lista, bairros, ajustes] = await Promise.all([
         obter("/empresas"), obter("/relatorios/bairros"), obter("/relatorios/ajustes"),
@@ -545,7 +628,201 @@
       $("#titulo").textContent = "Os dados não chegaram.";
       $("#erro").hidden = false;
     }
-  })();
+  }
+
+  // ---------- Sessão (POST /login, token JWT) ----------
+  const token = () => sessionStorage.getItem("token");
+  function dadosToken() {
+    try {
+      const p = JSON.parse(atob(token().split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+      return p.exp * 1000 > Date.now() ? p : null;
+    } catch { return null; }
+  }
+  function atualizarSessao() {
+    const p = dadosToken();
+    if (!p) sessionStorage.removeItem("token");
+    $("#sessao").textContent = p ? `Sair (${p.email})` : "Entrar";
+    $("#aviso-login").hidden = !!p;
+    $("#form-empresa").hidden = !p;
+  }
+  // Rotas protegidas: manda o token e, se a API recusar, pede para entrar de novo
+  async function fetchAuth(url, opcoes = {}) {
+    const resposta = await fetch(url, { ...opcoes, headers: { ...(opcoes.headers ?? {}), Authorization: `Bearer ${token()}` } });
+    if (resposta.status === 401 || resposta.status === 403) {
+      sessionStorage.removeItem("token");
+      atualizarSessao();
+      $("#login-erro").textContent = "Sua sessão expirou ou não tem permissão. Entre de novo.";
+      $("#login").showModal();
+    }
+    return resposta;
+  }
+  $("#sessao").addEventListener("click", () => {
+    if (token()) { sessionStorage.removeItem("token"); atualizarSessao(); location.reload(); }
+    else $("#login").showModal();
+  });
+  $("#abrir-login").addEventListener("click", () => $("#login").showModal());
+  $("#cancelar-login").addEventListener("click", () => $("#login").close());
+  $("#form-login").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const form = ev.currentTarget;
+    const erro = $("#login-erro");
+    erro.textContent = "";
+    try {
+      const resposta = await fetch("/login", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.elements.email.value.trim(), senha: form.elements.senha.value }) });
+      const dados = await resposta.json().catch(() => ({}));
+      if (!resposta.ok) { erro.textContent = dados.erro ?? "Não foi possível entrar."; return; }
+      sessionStorage.setItem("token", dados.token);
+      form.reset();
+      $("#login").close();
+      atualizarSessao();
+      if (location.hash.startsWith("#/empresas") || location.hash === "") location.reload();
+    } catch { erro.textContent = "Não consegui falar com a API. Confira se ela está rodando."; }
+  });
+
+  // ---------- Editar e excluir (PUT e DELETE /empresas/:id) ----------
+  function acoesEmpresa(e) {
+    if (!dadosToken()) return null;
+    const alvo = `/empresas/${encodeURIComponent(e.id_empresa)}`;
+    const caixa = h("div", { class: "acoes" });
+    const mensagem = (texto) => caixa.append(h("p", { class: "criterio", role: "alert", style: "width:100%;color:var(--erro)" }, texto));
+
+    const botoes = () => caixa.replaceChildren(
+      h("button", { class: "botao", type: "button", onclick: editar }, "Editar"),
+      h("button", { class: "botao perigo", type: "button", onclick: excluir }, "Excluir"));
+
+    function editar() {
+      const campos = [["razao_social", "Razão social", e.razao_social], ["cnpj", "CNPJ", e.cnpj],
+        ["email", "E-mail", e.email], ["data_cadastro", "Data de cadastro", String(e.data_cadastro ?? "").slice(0, 10)]];
+      const form = h("form", { class: "cadastro" },
+        campos.map(([nome, rotulo, valor]) => h("label", {}, rotulo,
+          h("input", { name: nome, value: valor ?? "", type: nome === "data_cadastro" ? "date" : "text" }))),
+        h("div", {}, h("button", { class: "botao", type: "submit" }, "Salvar"),
+          h("button", { class: "fechar", type: "button", style: "margin-left:.5rem", onclick: botoes }, "Cancelar")));
+      form.addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const corpo = Object.fromEntries(new FormData(form));
+        corpo.cnpj = soDigitos(corpo.cnpj);
+        if (corpo.cnpj.length !== 14) return mensagem("O CNPJ precisa ter 14 números.");
+        if (!corpo.data_cadastro) delete corpo.data_cadastro;
+        const resposta = await fetchAuth(alvo, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) });
+        if (resposta.ok) return location.reload();
+        const dados = await resposta.json().catch(() => ({}));
+        mensagem(`${dados.erro ?? "Não foi possível salvar."} (resposta ${resposta.status})`);
+      });
+      caixa.replaceChildren(form);
+    }
+
+    async function excluir() {
+      if (!confirm(`Excluir ${e.razao_social}? Esta ação não pode ser desfeita.`)) return;
+      const resposta = await fetchAuth(alvo, { method: "DELETE" });
+      if (resposta.ok) return location.reload();
+      const dados = await resposta.json().catch(() => ({}));
+      mensagem(`${dados.erro ?? "Não foi possível excluir."} (resposta ${resposta.status})`);
+    }
+
+    botoes();
+    return caixa;
+  }
+
+  // ---------- Telefones ----------
+  let telefonesCarregados = false;
+  async function carregarTelefones() {
+    if (telefonesCarregados) return;
+    try {
+      const lista = await obter("/telefones");
+      const nomes = new Map(empresas.map((e) => [e.id_empresa, e.razao_social]));
+      $("#linhas-tel").replaceChildren(...lista.map((t) => h("tr", {},
+        h("td", {}, nomes.get(t.id_empresa) ?? t.id_empresa, h("span", { class: "id" }, t.id_empresa)),
+        h("td", {}, formatarTelefone(t)), h("td", {}, t.tipo))));
+      $("#cont-tel").textContent = plural(lista.length, "telefone", "telefones");
+      telefonesCarregados = true;
+    } catch (erro) {
+      console.error(erro);
+      $("#cont-tel").textContent = "Não consegui carregar os telefones. Confira se a API está rodando.";
+    }
+  }
+
+  // ---------- Cadastrar (POST /empresas) ----------
+  $("#form-empresa").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const form = ev.currentTarget; // guardado aqui porque some depois do await
+    const caixa = $("#res-cad");
+    const mostrar = (texto, erro, extra) => {
+      caixa.hidden = false;
+      caixa.className = `resultado${erro ? " erro" : ""}`;
+      caixa.replaceChildren(...[h("p", { style: "margin:0" }, texto), extra].filter(Boolean));
+    };
+
+    const corpo = {};
+    for (const [campo, valor] of new FormData(form)) if (String(valor).trim()) corpo[campo] = String(valor).trim();
+    corpo.cnpj = soDigitos(corpo.cnpj);
+    if (corpo.cnpj.length !== 14) return mostrar("O CNPJ precisa ter 14 números.", true);
+    if (corpo.cep) corpo.cep = soDigitos(corpo.cep);
+    if (corpo.uf) corpo.uf = corpo.uf.toUpperCase();
+
+    try {
+      const resposta = await fetchAuth("/empresas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) });
+      const dados = await resposta.json().catch(() => ({}));
+      if (resposta.status === 201) {
+        form.reset();
+        mostrar(`Empresa ${dados.id_empresa} cadastrada (resposta ${resposta.status}).`, false,
+          h("button", { class: "botao", type: "button", style: "margin-top:.7rem", onclick: () => { location.hash = "#/empresas"; location.reload(); } }, "Ver nas empresas"));
+      } else {
+        mostrar(`${dados.erro ?? "Não foi possível cadastrar."} (resposta ${resposta.status})`, true);
+      }
+    } catch (erro) {
+      mostrar("Não consegui falar com a API. Confira se ela está rodando.", true);
+    }
+  });
+
+  // ---------- Explorar a API ----------
+  const ROTAS = [
+    ["/empresas", "Lista todas as empresas, com bairro e vendedor."],
+    ["/empresas/:id", "Uma empresa com vendedor, endereço e telefones."],
+    ["/empresas/:id/auditoria", "Tudo o que foi mudado no cadastro: valor original, valor tratado, critério e fonte."],
+    ["/telefones", "Todos os telefones."],
+    ["/relatorios/bairros", "Empresas por bairro e as grafias unificadas em cada um."],
+    ["/relatorios/ajustes", "Quantidade de ajustes por campo e por fonte."],
+  ];
+  $("#rota").replaceChildren(...ROTAS.map(([rota]) => h("option", { value: rota }, `GET ${rota}`)));
+  function atualizarRota() {
+    const rota = $("#rota").value;
+    $("#rotulo-param").hidden = !rota.includes(":id");
+    $("#rota-desc").textContent = ROTAS.find(([r]) => r === rota)[1];
+  }
+  $("#rota").addEventListener("change", atualizarRota);
+  atualizarRota();
+
+  $("#enviar").addEventListener("click", async () => {
+    const caminho = $("#rota").value.replace(":id", encodeURIComponent($("#param").value.trim()));
+    const inicio = performance.now();
+    $("#req").textContent = `GET ${caminho} …`;
+    try {
+      const resposta = await fetch(caminho);
+      const dados = await resposta.json().catch(() => null);
+      $("#req").textContent = `GET ${caminho}: resposta ${resposta.status}, ${Math.round(performance.now() - inicio)} ms`;
+      $("#resp").textContent = JSON.stringify(dados, null, 2);
+    } catch (erro) {
+      $("#req").textContent = `GET ${caminho}: sem resposta`;
+      $("#resp").textContent = "Não consegui falar com a API. Confira se ela está rodando.";
+    }
+  });
+
+  // ---------- Abas ----------
+  const VISTAS = ["resumo", "empresas", "telefones", "cadastrar", "api"];
+  function rotear() {
+    const pedida = location.hash.replace("#/", "");
+    const atual = VISTAS.includes(pedida) ? pedida : "resumo";
+    document.querySelectorAll("[data-vista]").forEach((el) => { el.hidden = el.dataset.vista !== atual; });
+    document.querySelectorAll("#abas a").forEach((a) =>
+      a.setAttribute("aria-current", a.getAttribute("href") === `#/${atual}` ? "page" : "false"));
+    if (atual === "telefones") carregarTelefones();
+  }
+  addEventListener("hashchange", rotear);
+  rotear();
+  atualizarSessao();
+  carregarTudo();
 </script>
 </body>
 </html>

@@ -2,6 +2,7 @@ import "dotenv/config";
 //comamdos para rodar nosso projeto em ordem é : npm install,npm run etl,npm run api, http://localhost:3000 abre a página de apresentação.
 //http://localhost:3000/relatorios/bairros mostra as empresas por bairro.
 //http://localhost:3000/empresas/CLI0002/auditoria mostra a auditoria de uma empresa.
+// Antes de rodar a API instale jsonwebtoken : npm install jsonwebtoken
 
 import { extrairEmpresas } from "./extract.js";
 import { transformarEmpresa } from "./transform.js";
